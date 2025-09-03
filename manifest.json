@@ -9,26 +9,14 @@
 "orientation": "portrait-primary",
 "icons": [
 {
-"src": "https://www.google.com/search?q=https://placehold.co/192x192/00D4AA/FFFFFF%3Ftext%3DEXP",
+"src": "icon-192x192.png",
 "type": "image/png",
 "sizes": "192x192"
 },
 {
-"src": "https://www.google.com/search?q=https://placehold.co/512x512/00D4AA/FFFFFF%3Ftext%3DEXP",
+"src": "icon-512x512.png",
 "type": "image/png",
 "sizes": "512x512"
-},
-{
-"src": "https://www.google.com/search?q=https://placehold.co/192x192/00D4AA/FFFFFF%3Ftext%3DEXP%26maskable",
-"type": "image/png",
-"sizes": "192x192",
-"purpose": "maskable"
-},
-{
-"src": "https://www.google.com/search?q=https://placehold.co/512x512/00D4AA/FFFFFF%3Ftext%3DEXP%26maskable",
-"type": "image/png",
-"sizes": "512x512",
-"purpose": "maskable"
 }
 ]
 }
