@@ -3,7 +3,7 @@
 "short_name": "Exp. Operação",
 "description": "Gerencie o lançamento e o acompanhamento das expedições do CD.",
 "start_url": "./index.html",
-"display": "standalone",
+"display": "minimal-ui",
 "background_color": "#011627",
 "theme_color": "#0077B6",
 "orientation": "portrait-primary",
