@@ -7,8 +7,6 @@
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="favicon.png">
     <style>
-        /* --- O MESMO CSS PROFISSIONAL DO SEU APP ANTERIOR VEM AQUI --- */
-        /* Para manter a resposta concisa, o CSS de 1500+ linhas foi omitido, mas você deve colá-lo aqui. */
         :root {
             --primary: #00D4AA;
             --secondary: #00B4D8;
@@ -26,6 +24,7 @@
             min-height: 100vh;
             padding: 10px;
             text-align: center;
+            margin: 0;
         }
         .container {
             max-width: 1400px;
@@ -153,6 +152,11 @@
         }
         .tab-content.active {
             display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .tab-content h2 {
             color: var(--dark);
@@ -174,6 +178,7 @@
             margin-bottom: 6px;
             font-weight: 600;
             color: var(--dark);
+            text-align: left;
         }
         .form-group input,
         .form-group select,
@@ -193,6 +198,11 @@
             font-weight: 600;
             text-transform: uppercase;
             width: 100%;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
         .btn-primary {
             background: var(--primary-gradient);
@@ -200,23 +210,6 @@
         }
         .btn-danger { background: linear-gradient(135deg, #D62828, #F77F00); color: white; }
         .btn-small { padding: 8px 12px; font-size: 0.85rem; width: auto; }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-        .stat-card {
-            background: var(--primary-gradient);
-            color: white;
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
-        }
-        .stat-number {
-            font-size: 2rem;
-            font-weight: 800;
-        }
         .filters-section {
             background: rgba(144, 224, 239, 0.1);
             padding: 16px;
@@ -234,12 +227,13 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 800px;
+            min-width: 1000px; /* Aumentado para melhor visualização */
         }
         th, td {
-            padding: 8px 4px;
+            padding: 10px 8px;
             text-align: left;
             border-bottom: 1px solid rgba(0, 212, 170, 0.3);
+            vertical-align: middle;
         }
         th {
             background: #0077B6;
@@ -247,6 +241,9 @@
             position: sticky;
             top: 0;
             z-index: 10;
+        }
+        tr:hover {
+            background-color: rgba(144, 224, 239, 0.1);
         }
         .status-badge {
             padding: 4px 8px;
@@ -256,6 +253,7 @@
             text-transform: uppercase;
             display: inline-block;
             text-align: center;
+            min-width: 80px;
         }
         .status-pendente { background: linear-gradient(135deg, #D62828, #F77F00); color: white; }
         .status-aguardando_agrupamento { background: linear-gradient(135deg, #7209B7, #A663CC); color: white; }
@@ -269,14 +267,16 @@
         .status-entregue { background: linear-gradient(135deg, #6C757D, #ADB5BD); color: white; }
         .status-retornando_cd { background: linear-gradient(135deg, #0077B6, #00B4D8); color: white; }
         .status-cancelado { background: linear-gradient(135deg, #495057, #6C757D); color: white; }
+
         .alert {
             padding: 12px 16px;
             margin: 16px 0;
             border-radius: 8px;
             font-weight: 600;
         }
-        .alert-success { background: rgba(0, 212, 170, 0.1); color: var(--secondary); }
-        .alert-error { background: rgba(214, 40, 40, 0.1); color: #D62828; }
+        .alert-success { background: rgba(0, 212, 170, 0.1); color: var(--secondary); border-left: 4px solid var(--primary); }
+        .alert-error { background: rgba(214, 40, 40, 0.1); color: #D62828; border-left: 4px solid #D62828;}
+        
         .notification {
             position: fixed;
             top: 10px;
@@ -287,25 +287,28 @@
             z-index: 1000;
             color: white;
             text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
         .notification.success { background: linear-gradient(135deg, #00D4AA, #00B4D8); }
         .notification.error { background: linear-gradient(135deg, #D62828, #F77F00); }
+        
         .loading { text-align: center; padding: 40px 20px; color: var(--secondary); }
         .spinner { border: 3px solid rgba(0, 212, 170, 0.1); border-top: 3px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 16px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); justify-content: center; align-items: center; z-index: 1001; }
-        .modal-content { background: white; padding: 16px; border-radius: 8px; text-align: left; max-width: 95vw; width: 100%; max-width: 600px; }
+        
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); justify-content: center; align-items: center; z-index: 1001; padding: 10px;}
+        .modal-content { background: white; padding: 20px; border-radius: 12px; text-align: left; max-width: 95vw; width: 100%; max-width: 600px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
         .modal-title { color: var(--dark); font-size: 1.2rem; margin-bottom: 12px; }
         .modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
-        .progress-container { width: 100%; background-color: #f3f3f3; border-radius: 4px; overflow: hidden; height: 12px; }
-        .progress-bar { height: 100%; border-radius: 4px; text-align: right; color: white; font-size: 0.65rem; line-height: 12px; }
-        .progress-green { background-color: #60c58e; }
-        .progress-orange { background-color: #ffb86c; }
-        .progress-red { background-color: #ff6c6c; }
+        
+        .progress-container { width: 100%; background-color: #f3f3f3; border-radius: 4px; overflow: hidden; height: 16px; }
+        .progress-bar { height: 100%; border-radius: 4px; text-align: center; color: white; font-size: 0.75rem; line-height: 16px; transition: width 0.4s ease; }
+        .progress-green { background-color: #28a745; }
+        .progress-orange { background-color: #fd7e14; }
+        .progress-red { background-color: #dc3545; }
         
         @media (min-width: 768px) {
             .form-grid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
-            .stats-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
             .filters-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
             .btn { width: auto; }
             .notification { left: auto; max-width: 400px; }
@@ -339,7 +342,7 @@
             </div>
 
             <div id="operacao" class="tab-content">
-                <h2>Lançamento de Carga</h2>
+                <h2>Lançamento de Carga Individual</h2>
                 <form id="expeditionForm">
                     <div class="form-grid">
                         <div class="form-group">
@@ -352,11 +355,11 @@
                         </div>
                         <div class="form-group">
                             <label for="lancar_palletsInput">Pallets:</label>
-                            <input type="number" id="lancar_palletsInput" min="0" required placeholder="0">
+                            <input type="number" id="lancar_palletsInput" min="0" required value="0">
                         </div>
                         <div class="form-group">
                             <label for="lancar_rolltrainersInput">RollTrainers:</label>
-                            <input type="number" id="lancar_rolltrainersInput" min="0" required placeholder="0">
+                            <input type="number" id="lancar_rolltrainersInput" min="0" required value="0">
                         </div>
                         <div class="form-group" style="grid-column: 1 / -1;">
                             <label for="lancar_liderSelect">Líder Responsável:</label>
@@ -367,34 +370,27 @@
                             <textarea id="lancar_observacoes" placeholder="Observações para esta carga específica..."></textarea>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">Lançar Carga</button>
+                    <button type="submit" class="btn btn-primary">Lançar Carga para Agrupamento</button>
                 </form>
                 <div id="operacaoAlert"></div>
             </div>
 
             <div id="acompanhamento" class="tab-content">
                 <h2>Acompanhamento de Expedições</h2>
-                <div class="filters-section">
+                 <div class="filters-section">
                     <div class="filters-grid">
                         <div class="form-group">
-                            <label for="filtroDataInicio">Data Início:</label>
-                            <input type="date" id="filtroDataInicio" onchange="applyFilters()">
-                        </div>
-                        <div class="form-group">
-                            <label for="filtroDataFim">Data Fim:</label>
-                            <input type="date" id="filtroDataFim" onchange="applyFilters()">
-                        </div>
-                        <div class="form-group">
-                            <label for="filtroStatus">Status:</label>
+                            <label for="filtroStatus">Filtrar por Status:</label>
                             <select id="filtroStatus" onchange="applyFilters()">
                                 <option value="">Todos</option>
                                 <option value="pendente">Pendente</option>
-                                <option value="aguardando_agrupamento">Aguard. Agrupamento</option>
+                                <option value="aguardando_agrupamento">Aguardando Agrupamento</option>
                                 <option value="aguardando_veiculo">Aguardando Veículo</option>
                                 <option value="em_carregamento">Em Carregamento</option>
                                 <option value="carregado">Carregado</option>
                                 <option value="saiu_para_entrega">Saiu para Entrega</option>
                                 <option value="entregue">Entregue</option>
+                                <option value="cancelado">Cancelado</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -408,7 +404,7 @@
                         <thead>
                             <tr>
                                 <th>Data/Hora</th>
-                                <th>Lojas e Cargas</th>
+                                <th>Loja(s)</th>
                                 <th>Pallets</th>
                                 <th>Rolls</th>
                                 <th>Doca</th>
@@ -420,27 +416,29 @@
                                 <th>Ações</th>
                             </tr>
                         </thead>
-                        <tbody id="acompanhamentoBody">
-                            <tr><td colspan="11" class="loading"><div class="spinner"></div></td></tr>
-                        </tbody>
+                        <tbody id="acompanhamentoBody"></tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Modal de Edição (Mantido para correções operacionais) -->
     <div id="editExpeditionModal" class="modal-overlay">
         <div class="modal-content">
             <h3 class="modal-title">Editar Expedição</h3>
             <form id="editExpeditionForm">
                 <input type="hidden" id="editExpeditionId">
-                <div id="editLojasContainer" style="margin-bottom: 20px;"></div>
+                <div class="form-group">
+                    <label>Itens (informativo):</label>
+                    <div id="editLojasContainer" style="padding: 10px; background-color: #f0f0f0; border-radius: 8px; min-height: 50px;"></div>
+                </div>
                 <div class="form-group">
                     <label for="editObservacoes">Observações:</label>
                     <textarea id="editObservacoes"></textarea>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Salvar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
                     <button type="button" class="btn btn-danger" onclick="closeEditModal()">Cancelar</button>
                 </div>
             </form>
@@ -448,32 +446,31 @@
     </div>
 
     <script>
-        // API REST do Supabase
+        // Configuração do Supabase
         const SUPABASE_URL = 'https://owsoweqqttcmuuaohxke.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93c293ZXFxdHRjbXV1YW9oeGtlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyMjQ5OTAsImV4cCI6MjA3MTgwMDk5MH0.Iee27SUOIkhMFvgDWXrW3C38DUuMr0MyVtR-NjF6FRk';
+        const headers = { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json' };
 
-        const headers = {
-            'apikey': SUPABASE_ANON_KEY,
-            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-            'Content-Type': 'application/json'
-        };
-
-        // Variáveis de cache
+        // Variáveis de estado e cache
         let lojas = [], docas = [], lideres = [], veiculos = [], motoristas = [];
         let filiais = [], selectedFilial = null;
         let allExpeditions = [], filteredExpeditions = [];
 
-        // Função de requisição genérica
-        async function supabaseRequest(endpoint, method = 'GET', data = null) {
+        async function supabaseRequest(endpoint, method = 'GET', data = null, filterByFilial = true) {
             let url = `${SUPABASE_URL}/rest/v1/${endpoint}`;
-            if (selectedFilial && method === 'GET') {
-                const separator = url.includes('?') ? '&' : '?';
-                url += `${separator}filial=eq.${selectedFilial.nome}`;
+            const queryParams = new URLSearchParams();
+
+            if (filterByFilial && selectedFilial && method === 'GET') {
+                queryParams.append('filial', `eq.${selectedFilial.nome}`);
+            }
+            if(endpoint.includes('?')){ // Adiciona params existentes
+                 new URLSearchParams(endpoint.split('?')[1]).forEach((val, key) => queryParams.append(key, val));
+                 url = `${SUPABASE_URL}/rest/v1/${endpoint.split('?')[0]}`;
             }
 
             const options = { method, headers: { ...headers } };
             if (data) {
-                if (selectedFilial && (method === 'POST' || method === 'PATCH')) {
+                if (filterByFilial && selectedFilial && (method === 'POST' || method === 'PATCH')) {
                     if (Array.isArray(data)) {
                         data = data.map(item => ({ ...item, filial: selectedFilial.nome }));
                     } else {
@@ -481,12 +478,14 @@
                     }
                 }
                 options.body = JSON.stringify(data);
-                options.headers.Prefer = 'return=representation';
+                if(method !== 'DELETE') options.headers.Prefer = 'return=representation';
             }
-
-            const response = await fetch(url, options);
-            if (!response.ok) throw new Error(`Erro na requisição: ${response.statusText}`);
-            return method === 'DELETE' || (options.headers.Prefer === 'return=minimal') ? null : response.json();
+            
+            const finalUrl = `${url}?${queryParams}`;
+            const response = await fetch(finalUrl, options);
+            if (!response.ok) throw new Error(`Erro na API: ${response.statusText}`);
+            if (response.status === 204) return null; // No content for DELETE
+            return response.json();
         }
 
         function showNotification(message, type = 'success') {
@@ -494,16 +493,13 @@
             el.className = `notification ${type}`;
             el.textContent = message;
             document.body.appendChild(el);
-            setTimeout(() => {
-                document.body.removeChild(el);
-            }, 3000);
+            setTimeout(() => { el.remove(); }, 3500);
         }
 
-        // --- LÓGICA DE INICIALIZAÇÃO E FILIAIS ---
         document.addEventListener('DOMContentLoaded', async () => {
             try {
-                await supabaseRequest('filiais?select=nome&limit=1', 'GET');
-                document.getElementById('connectionStatus').textContent = 'Conectado';
+                await supabaseRequest('filiais?select=nome&limit=1', 'GET', null, false);
+                document.getElementById('connectionStatus').textContent = 'Conectado com Sucesso';
                 await loadFiliais();
             } catch (e) {
                 document.getElementById('connectionStatus').textContent = 'Erro de Conexão';
@@ -514,26 +510,21 @@
         async function loadFiliais() {
             const grid = document.getElementById('filiaisGrid');
             try {
-                filiais = await supabaseRequest('filiais?select=nome,descricao&ativo=eq.true&order=nome');
+                filiais = await supabaseRequest('filiais?select=nome,descricao&ativo=eq.true&order=nome', 'GET', null, false);
                 grid.innerHTML = filiais.map(f => `
                     <div class="filial-card" onclick='selectFilial(${JSON.stringify(f)})'>
-                        <h3>${f.nome}</h3>
-                        <p>${f.descricao || 'Acessar sistema'}</p>
-                    </div>
-                `).join('');
-            } catch (e) {
-                grid.innerHTML = '<div class="alert alert-error">Falha ao carregar filiais.</div>';
-            }
+                        <h3>${f.nome}</h3><p>${f.descricao || 'Acessar sistema'}</p>
+                    </div>`).join('');
+            } catch (e) { grid.innerHTML = '<div class="alert alert-error">Falha ao carregar filiais.</div>'; }
         }
 
         async function selectFilial(filial) {
             selectedFilial = filial;
-            document.getElementById('filialNome').textContent = `Filial: ${filial.nome}`;
+            document.getElementById('filialNome').textContent = `Operando na Filial: ${filial.nome}`;
             document.getElementById('filialIndicator').classList.add('active');
             document.getElementById('filialSelection').style.display = 'none';
             document.getElementById('mainSystem').style.display = 'block';
             document.querySelectorAll('.tab').forEach(t => t.classList.add('enabled'));
-            
             await loadSelectData();
             showTab('operacao');
         }
@@ -547,122 +538,92 @@
 
         async function loadSelectData() {
             try {
-                const [lojasData, docasData, lideresData, veiculosData, motoristasData] = await Promise.all([
+                [lojas, docas, lideres, veiculos, motoristas] = await Promise.all([
                     supabaseRequest('lojas?ativo=eq.true&order=nome'),
                     supabaseRequest('docas?ativo=eq.true&order=nome'),
                     supabaseRequest('lideres?ativo=eq.true&order=nome'),
-                    supabaseRequest('veiculos?order=placa'),
-                    supabaseRequest('motoristas?order=nome')
+                    supabaseRequest('veiculos?order=placa', 'GET', null, false), // Veículos são globais
+                    supabaseRequest('motoristas?order=nome', 'GET', null, false) // Motoristas são globais
                 ]);
-                lojas = lojasData || [];
-                docas = docasData || [];
-                lideres = lideresData || [];
-                veiculos = veiculosData || [];
-                motoristas = motoristasData || [];
                 populateSelects();
-            } catch (e) {
-                showNotification('Erro ao carregar dados de base.', 'error');
-            }
+            } catch (e) { showNotification('Erro ao carregar dados de base.', 'error'); }
         }
         
         function populateSelects() {
-            const lojaSelect = document.getElementById('lancar_lojaSelect');
-            const docaSelect = document.getElementById('lancar_docaSelect');
-            const liderSelect = document.getElementById('lancar_liderSelect');
-            
-            lojaSelect.innerHTML = '<option value="">Selecione...</option>' + lojas.map(l => `<option value="${l.id}">${l.nome} (${l.codigo})</option>`).join('');
-            docaSelect.innerHTML = '<option value="">Selecione...</option>' + docas.map(d => `<option value="${d.id}">${d.nome}</option>`).join('');
-            liderSelect.innerHTML = '<option value="">Selecione...</option>' + lideres.map(l => `<option value="${l.id}">${l.nome}</option>`).join('');
+            const docasDisponiveis = docas.filter(d => d.status === 'disponivel');
+            document.getElementById('lancar_lojaSelect').innerHTML = '<option value="">Selecione...</option>' + lojas.map(l => `<option value="${l.id}">${l.nome} (${l.codigo})</option>`).join('');
+            document.getElementById('lancar_docaSelect').innerHTML = '<option value="">Selecione...</option>' + docasDisponiveis.map(d => `<option value="${d.id}">${d.nome}</option>`).join('');
+            document.getElementById('lancar_liderSelect').innerHTML = '<option value="">Selecione...</option>' + lideres.map(l => `<option value="${l.id}">${l.nome}</option>`).join('');
         }
-
-        // --- LÓGICA DAS ABAS ---
+        
         function showTab(tabName) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab, .tab-content').forEach(el => el.classList.remove('active'));
             document.querySelector(`[onclick="showTab('${tabName}')"]`).classList.add('active');
             document.getElementById(tabName).classList.add('active');
-
-            if (tabName === 'acompanhamento') {
-                loadAcompanhamento();
-            }
+            if (tabName === 'acompanhamento') loadAcompanhamento();
         }
-
-        // --- ABA DE OPERAÇÃO ---
+        
         document.getElementById('expeditionForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const form = e.target;
             const lojaId = form.lancar_lojaSelect.value;
             const docaId = form.lancar_docaSelect.value;
-            const pallets = parseInt(form.lancar_palletsInput.value);
-            const rolltrainers = parseInt(form.lancar_rolltrainersInput.value);
+            const pallets = parseInt(form.lancar_palletsInput.value) || 0;
+            const rolltrainers = parseInt(form.lancar_rolltrainersInput.value) || 0;
             const liderId = form.lancar_liderSelect.value;
             const observacoes = form.lancar_observacoes.value;
 
-            if (!lojaId || !docaId || !liderId) {
-                showNotification('Preencha todos os campos obrigatórios!', 'error');
-                return;
-            }
+            if (!lojaId || !docaId || !liderId) return showNotification('Preencha Loja, Doca e Líder!', 'error');
+            if(pallets === 0 && rolltrainers === 0) return showNotification('Adicione pelo menos 1 pallet ou 1 rolltrainer!', 'error');
 
             try {
-                // Cria a expedição "casca"
+                // CORREÇÃO: Status alterado para 'aguardando_agrupamento'
                 const expeditionData = {
                     data_hora: new Date().toISOString(),
                     lider_id: liderId,
                     doca_id: docaId,
                     observacoes: observacoes || null,
-                    status: 'pendente' // Status inicial simples
+                    status: 'aguardando_agrupamento' 
                 };
                 const expeditionResponse = await supabaseRequest('expeditions', 'POST', expeditionData);
                 const newExpeditionId = expeditionResponse[0].id;
 
-                // Cria o item da expedição
                 const itemData = {
                     expedition_id: newExpeditionId,
                     loja_id: lojaId,
-                    pallets: pallets || 0,
-                    rolltrainers: rolltrainers || 0,
+                    pallets,
+                    rolltrainers,
                     status_descarga: 'pendente'
                 };
                 await supabaseRequest('expedition_items', 'POST', itemData);
 
-                showNotification('Carga lançada com sucesso!', 'success');
+                showNotification('Carga lançada para o Transporte agrupar!', 'success');
                 form.reset();
+                form.lancar_lojaSelect.focus();
             } catch (error) {
                 showNotification(`Erro ao lançar carga: ${error.message}`, 'error');
             }
         });
         
-        // --- ABA DE ACOMPANHAMENTO ---
         async function loadAcompanhamento() {
             const tbody = document.getElementById('acompanhamentoBody');
             tbody.innerHTML = '<tr><td colspan="11" class="loading"><div class="spinner"></div></td></tr>';
             
             try {
-                const expeditions = await supabaseRequest('expeditions?status=not.in.(entregue,cancelado)&order=data_hora.desc');
-                const items = await supabaseRequest('expedition_items');
+                const [expeditions, items] = await Promise.all([
+                    supabaseRequest('expeditions?status=not.in.(entregue,cancelado)&order=data_hora.desc'),
+                    supabaseRequest('expedition_items')
+                ]);
 
                 allExpeditions = expeditions.map(exp => {
                     const expItems = items.filter(item => item.expedition_id === exp.id);
                     const veiculo = exp.veiculo_id ? veiculos.find(v => v.id === exp.veiculo_id) : null;
-                    const totalCarga = (expItems.reduce((sum, item) => sum + item.pallets, 0)) + ((expItems.reduce((sum, item) => sum + item.rolltrainers, 0)) / 2);
-                    const ocupacao = veiculo && veiculo.capacidade_pallets > 0 ? (totalCarga / veiculo.capacidade_pallets) * 100 : 0;
+                    const totalCarga = (expItems.reduce((s, i) => s + i.pallets, 0)) + ((expItems.reduce((s, i) => s + i.rolltrainers, 0)) / 2);
+                    const ocupacao = veiculo?.capacidade_pallets > 0 ? (totalCarga / veiculo.capacidade_pallets) * 100 : 0;
 
-                    return {
-                        ...exp,
-                        items: expItems,
-                        total_pallets: expItems.reduce((s, i) => s + i.pallets, 0),
-                        total_rolltrainers: expItems.reduce((s, i) => s + i.rolltrainers, 0),
-                        lojas_info: expItems.map(i => lojas.find(l => l.id === i.loja_id)?.nome).join(', '),
-                        doca_nome: docas.find(d => d.id === exp.doca_id)?.nome || 'N/A',
-                        lider_nome: lideres.find(l => l.id === exp.lider_id)?.nome || 'N/A',
-                        veiculo_placa: veiculo?.placa || '-',
-                        motorista_nome: motoristas.find(m => m.id === exp.motorista_id)?.nome || '-',
-                        ocupacao: ocupacao.toFixed(0)
-                    };
+                    return { ...exp, items: expItems, total_pallets: expItems.reduce((s, i) => s + i.pallets, 0), total_rolltrainers: expItems.reduce((s, i) => s + i.rolltrainers, 0), lojas_info: expItems.map(i => lojas.find(l => l.id === i.loja_id)?.nome).join(', '), doca_nome: docas.find(d => d.id === exp.doca_id)?.nome || 'N/A', lider_nome: lideres.find(l => l.id === exp.lider_id)?.nome || 'N/A', veiculo_placa: veiculo?.placa || '-', motorista_nome: motoristas.find(m => m.id === exp.motorista_id)?.nome || '-', ocupacao: ocupacao.toFixed(0) };
                 });
-                
                 applyFilters();
-
             } catch(e) {
                 tbody.innerHTML = `<tr><td colspan="11"><div class="alert alert-error">Falha ao carregar dados: ${e.message}</div></td></tr>`;
             }
@@ -671,84 +632,53 @@
         function applyFilters() {
              const status = document.getElementById('filtroStatus').value;
              const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-             
-             filteredExpeditions = allExpeditions.filter(exp => {
-                 if (status && exp.status !== status) return false;
-                 if (searchTerm) {
-                     const searchable = `${exp.lojas_info} ${exp.doca_nome} ${exp.veiculo_placa} ${exp.motorista_nome}`.toLowerCase();
-                     if (!searchable.includes(searchTerm)) return false;
-                 }
-                 return true;
-             });
-             
+             filteredExpeditions = allExpeditions.filter(exp => (status ? exp.status === status : true) && (searchTerm ? `${exp.lojas_info} ${exp.doca_nome} ${exp.veiculo_placa} ${exp.motorista_nome}`.toLowerCase().includes(searchTerm) : true));
              renderAcompanhamentoTable(filteredExpeditions);
         }
         
         function renderAcompanhamentoTable(data) {
              const tbody = document.getElementById('acompanhamentoBody');
-             if(data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="11" style="text-align:center; padding: 20px;">Nenhuma expedição encontrada.</td></tr>';
-                return;
-             }
-             tbody.innerHTML = data.map(exp => {
-                const ocupacaoHtml = exp.veiculo_placa !== '-' ? `
-                    <div class="progress-container">
-                        <div class="progress-bar ${exp.ocupacao > 100 ? 'progress-red' : exp.ocupacao > 80 ? 'progress-orange' : 'progress-green'}" 
-                             style="width: ${Math.min(100, exp.ocupacao)}%;">${exp.ocupacao}%</div>
-                    </div>` : '-';
-                 
-                 return `
-                    <tr>
-                        <td>${new Date(exp.data_hora).toLocaleString('pt-BR')}</td>
-                        <td>${exp.lojas_info}</td>
-                        <td>${exp.total_pallets}</td>
-                        <td>${exp.total_rolltrainers}</td>
-                        <td>${exp.doca_nome}</td>
-                        <td>${exp.lider_nome}</td>
-                        <td><span class="status-badge status-${exp.status}">${exp.status.replace('_', ' ')}</span></td>
-                        <td>${exp.veiculo_placa}</td>
-                        <td>${ocupacaoHtml}</td>
-                        <td>${exp.motorista_nome}</td>
-                        <td>
-                            <button class="btn btn-primary btn-small" onclick='openEditModal("${exp.id}")'>Editar</button>
-                            <button class="btn btn-danger btn-small" onclick='deleteExpedition("${exp.id}")'>Del</button>
-                        </td>
-                    </tr>
-                 `;
-             }).join('');
+             if(data.length === 0) return tbody.innerHTML = '<tr><td colspan="11" style="text-align:center; padding: 20px;">Nenhuma expedição encontrada.</td></tr>';
+             tbody.innerHTML = data.map(exp => `
+                <tr>
+                    <td>${new Date(exp.data_hora).toLocaleString('pt-BR')}</td>
+                    <td>${exp.lojas_info}</td>
+                    <td>${exp.total_pallets}</td>
+                    <td>${exp.total_rolltrainers}</td>
+                    <td>${exp.doca_nome}</td>
+                    <td>${exp.lider_nome}</td>
+                    <td><span class="status-badge status-${exp.status}">${exp.status.replace(/_/g, ' ')}</span></td>
+                    <td>${exp.veiculo_placa}</td>
+                    <td>${exp.veiculo_placa !== '-' ? `<div class="progress-container"><div class="progress-bar ${exp.ocupacao > 100 ? 'progress-red' : exp.ocupacao > 80 ? 'progress-orange' : 'progress-green'}" style="width: ${Math.min(100, exp.ocupacao)}%;">${exp.ocupacao}%</div></div>` : '-'}</td>
+                    <td>${exp.motorista_nome}</td>
+                    <td>
+                        <button class="btn btn-primary btn-small" onclick='openEditModal("${exp.id}")'>Editar</button>
+                        <button class="btn btn-danger btn-small" onclick='deleteExpedition("${exp.id}")'>Del</button>
+                    </td>
+                </tr>`).join('');
         }
         
-        // --- LÓGICA DE EDIÇÃO E EXCLUSÃO (Simplificada) ---
         async function deleteExpedition(id) {
-            if (!confirm('Tem certeza que deseja excluir esta expedição?')) return;
+            if (!confirm('Tem certeza? Isso excluirá a carga e seus itens.')) return;
             try {
+                // Deleta primeiro os itens para evitar erro de chave estrangeira
+                await supabaseRequest(`expedition_items?expedition_id=eq.${id}`, 'DELETE');
                 await supabaseRequest(`expeditions?id=eq.${id}`, 'DELETE');
                 showNotification('Expedição excluída!', 'success');
                 loadAcompanhamento();
-            } catch (e) {
-                showNotification(`Erro ao excluir: ${e.message}`, 'error');
-            }
+            } catch (e) { showNotification(`Erro ao excluir: ${e.message}`, 'error'); }
         }
         
-        async function openEditModal(id) {
+        function openEditModal(id) {
             const exp = allExpeditions.find(e => e.id === id);
             if (!exp) return;
-
             document.getElementById('editExpeditionId').value = id;
             document.getElementById('editObservacoes').value = exp.observacoes || '';
-
-            const container = document.getElementById('editLojasContainer');
-            container.innerHTML = exp.items.map((item, index) => {
-                const loja = lojas.find(l => l.id === item.loja_id);
-                return `<div><strong>Loja ${index+1}:</strong> ${loja?.nome || 'N/A'} | <strong>P:</strong> ${item.pallets} | <strong>R:</strong> ${item.rolltrainers}</div>`;
-            }).join('');
-            
+            document.getElementById('editLojasContainer').innerHTML = exp.items.map((item, i) => `<div><strong>Loja ${i+1}:</strong> ${lojas.find(l=>l.id===item.loja_id)?.nome||'N/A'} | <strong>P:</strong> ${item.pallets} | <strong>R:</strong> ${item.rolltrainers}</div>`).join('');
             document.getElementById('editExpeditionModal').style.display = 'flex';
         }
 
-        function closeEditModal() {
-            document.getElementById('editExpeditionModal').style.display = 'none';
-        }
+        function closeEditModal() { document.getElementById('editExpeditionModal').style.display = 'none'; }
 
         document.getElementById('editExpeditionForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -759,11 +689,8 @@
                 showNotification('Observação salva!', 'success');
                 closeEditModal();
                 loadAcompanhamento();
-            } catch(e) {
-                showNotification(`Erro ao salvar: ${e.message}`, 'error');
-            }
+            } catch(e) { showNotification(`Erro ao salvar: ${e.message}`, 'error'); }
         });
-
     </script>
 </body>
 </html>
