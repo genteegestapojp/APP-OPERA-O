@@ -2,7 +2,7 @@
 "name": "Sistema de Expedição - Operação",
 "short_name": "Exp. Operação",
 "description": "Gerencie o lançamento e o acompanhamento das expedições do CD.",
-"start_url": "./app_operacao.html",
+"start_url": "./index.html",
 "display": "standalone",
 "background_color": "#011627",
 "theme_color": "#0077B6",
