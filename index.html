@@ -725,28 +725,46 @@
 
         // Preencher selects
         function populateSelects() {
-            // Lojas
+            // Lojas - ordenar por código e depois por nome
             const lojaSelect = document.getElementById('lojaSelect');
             lojaSelect.innerHTML = '<option value="">Selecione a loja</option>';
-            lojas.forEach(loja => {
+            
+            const lojasOrdenadas = [...lojas].sort((a, b) => {
+                // Primeiro ordena por código
+                const codigoCompare = (a.codigo || '').localeCompare(b.codigo || '', 'pt-BR', { numeric: true });
+                if (codigoCompare !== 0) return codigoCompare;
+                // Se os códigos são iguais, ordena por nome
+                return (a.nome || '').localeCompare(b.nome || '', 'pt-BR');
+            });
+            
+            lojasOrdenadas.forEach(loja => {
                 lojaSelect.innerHTML += `<option value="${loja.id}">${loja.codigo} - ${loja.nome}</option>`;
             });
 
-            // Docas
+            // Docas - ordenar por nome
             const docaSelect = document.getElementById('docaSelect');
             docaSelect.innerHTML = '<option value="">Selecione a doca</option>';
-            docas.forEach(doca => {
+            
+            const docasOrdenadas = [...docas].sort((a, b) => {
+                return (a.nome || '').localeCompare(b.nome || '', 'pt-BR');
+            });
+            
+            docasOrdenadas.forEach(doca => {
                 docaSelect.innerHTML += `<option value="${doca.id}">${doca.nome}</option>`;
             });
 
-            // Líderes
+            // Líderes - ordenar por nome
             const liderSelect = document.getElementById('liderSelect');
             liderSelect.innerHTML = '<option value="">Selecione o líder</option>';
-            lideres.forEach(lider => {
+            
+            const lideresOrdenados = [...lideres].sort((a, b) => {
+                return (a.nome || '').localeCompare(b.nome || '', 'pt-BR');
+            });
+            
+            lideresOrdenados.forEach(lider => {
                 liderSelect.innerHTML += `<option value="${lider.id}">${lider.nome}</option>`;
             });
         }
-
         // Lançar expedição
         async function handleLancarExpedicao(e) {
             e.preventDefault();
