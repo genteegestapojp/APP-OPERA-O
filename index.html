@@ -3,10 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Expedição - Operação</title>
+    <title>Expedição Mobile</title>
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+
     <style>
+        /* Variáveis Globais de Cor */
         :root {
             --primary: #00D4AA;
             --secondary: #00B4D8;
@@ -16,179 +20,216 @@
             --light: #90E0EF;
             --primary-gradient: linear-gradient(135deg, #00D4AA 0%, #00B4D8 50%, #0077B6 100%);
             --secondary-gradient: linear-gradient(135deg, #90E0EF 0%, #00D4AA 100%);
-            --accent-gradient: linear-gradient(135deg, #0077B6 0%, #023047 100%);
         }
+
         body {
-            font-family: 'Segoe UI', -apple-system, sans-serif;
+            font-family: 'Inter', 'Segoe UI', -apple-system, sans-serif;
+            background-color: #f4f7fa;
+        }
+
+        /* Tela de seleção de filial */
+        .filial-selection-container {
             background: var(--primary-gradient);
             min-height: 100vh;
-            padding: 10px;
+            padding: 20px;
             text-align: center;
-            margin: 0;
-        }
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 16px;
-            box-shadow: 0 16px 32px rgba(0, 119, 182, 0.2);
-            overflow: hidden;
-            text-align: left;
-        }
-        .connection-status {
-            background: var(--primary-gradient);
-            color: white;
-            padding: 8px 16px;
-            text-align: center;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-        .connection-status.error {
-            background: linear-gradient(135deg, #D62828, #F77F00);
-        }
-        .filial-indicator {
-            background: var(--accent-gradient);
-            color: white;
-            padding: 12px 20px;
-            text-align: center;
-            font-weight: 700;
-            font-size: 1rem;
-            display: none;
-        }
-        .filial-indicator.active {
-            display: block;
-        }
-        .header {
-            background: var(--accent-gradient);
-            color: white;
-            padding: 20px 15px;
-            text-align: center;
-        }
-        .header h1 {
-            font-size: 1.8rem;
-            margin-bottom: 8px;
-            font-weight: 700;
-        }
-        .header p {
-            font-size: 0.95rem;
-            opacity: 0.9;
-            line-height: 1.4;
-        }
-        .filial-selection {
-            padding: 40px 20px;
-            text-align: center;
-            min-height: 400px;
             display: flex;
-            flex-direction: column;
+            align-items: center;
             justify-content: center;
         }
+
+        .filial-selection {
+            max-width: 400px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: 0 16px 32px rgba(0, 119, 182, 0.2);
+            padding: 30px 20px;
+            text-align: center;
+        }
+
         .filial-selection h2 {
             color: var(--dark);
-            font-size: 2rem;
-            margin-bottom: 20px;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
             font-weight: 700;
         }
-        .filiais-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            max-width: 800px;
-            margin: 0 auto;
+
+        .filial-selection p {
+            color: var(--secondary);
+            font-size: 1rem;
+            margin-bottom: 30px;
+            line-height: 1.5;
         }
+
         .filial-card {
             background: rgba(255, 255, 255, 0.9);
             border: 2px solid rgba(0, 212, 170, 0.3);
-            border-radius: 16px;
-            padding: 30px;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
             cursor: pointer;
             transition: all 0.3s ease;
             text-align: center;
+            position: relative;
+            overflow: hidden;
         }
+
         .filial-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-3px);
             border-color: var(--primary);
-            box-shadow: 0 12px 30px rgba(0, 212, 170, 0.3);
+            box-shadow: 0 8px 25px rgba(0, 212, 170, 0.3);
         }
+
         .filial-card h3 {
             color: var(--dark);
-            font-size: 1.4rem;
-            margin-bottom: 10px;
+            font-size: 1.2rem;
+            margin-bottom: 8px;
             font-weight: 700;
         }
-        .tabs {
+
+        .filial-card p {
+            color: var(--secondary);
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        .filial-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+        }
+
+        /* Header mobile */
+        .mobile-header {
+            background: var(--darker);
+            color: white;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .mobile-header h1 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0;
             display: flex;
-            background: var(--dark);
-            overflow-x: auto;
+            align-items: center;
+            gap: 8px;
         }
-        .tab {
-            flex: 1;
-            min-width: 120px;
-            padding: 12px 16px;
-            cursor: pointer;
+
+        .mobile-header .filial-info {
+            font-size: 0.8rem;
             color: var(--light);
-            border: none;
-            background: none;
-            font-size: 0.9rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            text-align: center;
-            opacity: 0.5;
-            pointer-events: none;
+            margin-top: 4px;
         }
-        .tab.enabled {
-            opacity: 1;
-            pointer-events: auto;
+
+        /* Navegação bottom */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            padding: 8px 0;
+            display: flex;
+            justify-content: space-around;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
         }
-        .tab.active {
-            background: var(--secondary-gradient);
-            color: var(--dark);
-            opacity: 1;
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 4px;
+            color: #6b7280;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-size: 0.75rem;
+            font-weight: 500;
         }
-        .tab-content {
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-item i {
+            margin-bottom: 4px;
+        }
+
+        /* Conteúdo principal */
+        .main-content {
+            padding: 1rem;
+            padding-bottom: 80px; /* Espaço para bottom nav */
+            max-width: 100%;
+        }
+
+        .view-content {
             display: none;
-            padding: 20px 15px;
-            min-height: 400px;
         }
-        .tab-content.active {
+
+        .view-content.active {
             display: block;
-            animation: fadeIn 0.5s ease;
+            animation: fadeIn 0.3s ease;
         }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .tab-content h2 {
-            color: var(--dark);
-            font-size: 1.5rem;
+
+        /* Cards e formulários */
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 119, 182, 0.1);
+            padding: 20px;
             margin-bottom: 20px;
-            text-align: center;
         }
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
+
         .form-group {
-            display: flex;
-            flex-direction: column;
+            margin-bottom: 16px;
         }
+
         .form-group label {
+            display: block;
             margin-bottom: 6px;
             font-weight: 600;
             color: var(--dark);
-            text-align: left;
+            font-size: 0.9rem;
         }
+
         .form-group input,
         .form-group select,
         .form-group textarea {
+            width: 100%;
             padding: 12px 16px;
             border: 2px solid rgba(0, 212, 170, 0.3);
             border-radius: 8px;
             font-size: 1rem;
             background: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+            box-sizing: border-box;
         }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.1);
+        }
+
+        /* Botões */
         .btn {
             padding: 12px 20px;
             border: none;
@@ -197,500 +238,689 @@
             font-size: 0.95rem;
             font-weight: 600;
             text-transform: uppercase;
-            width: 100%;
             transition: all 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
         }
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
+
         .btn-primary {
             background: var(--primary-gradient);
             color: white;
         }
-        .btn-danger { background: linear-gradient(135deg, #D62828, #F77F00); color: white; }
-        .btn-small { padding: 8px 12px; font-size: 0.85rem; width: auto; }
-        .filters-section {
-            background: rgba(144, 224, 239, 0.1);
-            padding: 16px;
-            border-radius: 10px;
+
+        .btn-success {
+            background: linear-gradient(135deg, #00D4AA, #00B4D8);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #D62828, #F77F00);
+            color: white;
+        }
+
+        .btn-small {
+            padding: 8px 12px;
+            font-size: 0.8rem;
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        /* Stats cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
             margin-bottom: 20px;
         }
-        .filters-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 12px;
-        }
-        .table-container {
-            overflow-x: auto;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 1000px; /* Aumentado para melhor visualização */
-        }
-        th, td {
-            padding: 10px 8px;
-            text-align: left;
-            border-bottom: 1px solid rgba(0, 212, 170, 0.3);
-            vertical-align: middle;
-        }
-        th {
-            background: #0077B6;
+
+        .stat-card {
+            background: var(--primary-gradient);
             color: white;
-            position: sticky;
-            top: 0;
-            z-index: 10;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
         }
-        tr:hover {
-            background-color: rgba(144, 224, 239, 0.1);
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 4px;
         }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        /* Lista de expedições */
+        .expedition-item {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 16px;
+            margin-bottom: 12px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .expedition-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+
+        .expedition-title {
+            font-weight: 700;
+            color: var(--dark);
+            font-size: 1rem;
+        }
+
+        .expedition-time {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .expedition-details {
+            font-size: 0.85rem;
+            color: #4b5563;
+            margin-bottom: 8px;
+        }
+
+        /* Status badges */
         .status-badge {
             padding: 4px 8px;
-            border-radius: 10px;
-            font-size: 0.65rem;
-            font-weight: 700;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
             text-transform: uppercase;
             display: inline-block;
-            text-align: center;
-            min-width: 80px;
         }
-        .status-pendente { background: linear-gradient(135deg, #D62828, #F77F00); color: white; }
-        .status-aguardando_agrupamento { background: linear-gradient(135deg, #7209B7, #A663CC); color: white; }
-        .status-aguardando_veiculo { background: var(--primary-gradient); color: white; }
-        .status-em_carregamento { background: linear-gradient(135deg, #F77F00, #FCBF49); color: white; }
-        .status-carregado { background: linear-gradient(135deg, #00D4AA, #00B4D8); color: white; }
-        .status-aguardando_faturamento { background: linear-gradient(135deg, #7209B7, #A663CC); color: white; }
-        .status-faturamento_iniciado { background: linear-gradient(135deg, #F77F00, #FCBF49); color: white; }
-        .status-faturado { background: linear-gradient(135deg, #00D4AA, #7209B7); color: white; }
-        .status-saiu_para_entrega { background: linear-gradient(135deg, #7209B7, #A663CC); color: white; }
-        .status-entregue { background: linear-gradient(135deg, #6C757D, #ADB5BD); color: white; }
-        .status-retornando_cd { background: linear-gradient(135deg, #0077B6, #00B4D8); color: white; }
-        .status-cancelado { background: linear-gradient(135deg, #495057, #6C757D); color: white; }
 
-        .alert {
-            padding: 12px 16px;
-            margin: 16px 0;
-            border-radius: 8px;
-            font-weight: 600;
+        .status-aguardando_agrupamento { background-color: #fef3c7; color: #92400e; }
+        .status-aguardando_veiculo { background-color: #e0e7ff; color: #3730a3; }
+        .status-em_carregamento { background-color: #fef3c7; color: #92400e; }
+        .status-carregado { background-color: #d1fae5; color: #065f46; }
+        .status-saiu_para_entrega { background-color: #cffafe; color: #0e7490; }
+        .status-entregue { background-color: #f3f4f6; color: #4b5563; }
+        .status-cancelado { background-color: #fee2e2; color: #991b1b; }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--secondary);
         }
-        .alert-success { background: rgba(0, 212, 170, 0.1); color: var(--secondary); border-left: 4px solid var(--primary); }
-        .alert-error { background: rgba(214, 40, 40, 0.1); color: #D62828; border-left: 4px solid #D62828;}
-        
+
+        .spinner {
+            border: 3px solid rgba(0, 212, 170, 0.1);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Notificações */
         .notification {
             position: fixed;
-            top: 10px;
-            right: 10px;
-            left: 10px;
-            padding: 12px 16px;
-            border-radius: 8px;
-            z-index: 1000;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            background: var(--primary);
             color: white;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 2000;
+            font-weight: 600;
             text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transform: translateY(-100px);
+            opacity: 0;
+            transition: all 0.3s ease;
         }
-        .notification.success { background: linear-gradient(135deg, #00D4AA, #00B4D8); }
-        .notification.error { background: linear-gradient(135deg, #D62828, #F77F00); }
-        
-        .loading { text-align: center; padding: 40px 20px; color: var(--secondary); }
-        .spinner { border: 3px solid rgba(0, 212, 170, 0.1); border-top: 3px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 16px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); justify-content: center; align-items: center; z-index: 1001; padding: 10px;}
-        .modal-content { background: white; padding: 20px; border-radius: 12px; text-align: left; max-width: 95vw; width: 100%; max-width: 600px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .modal-title { color: var(--dark); font-size: 1.2rem; margin-bottom: 12px; }
-        .modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
-        
-        .progress-container { width: 100%; background-color: #f3f3f3; border-radius: 4px; overflow: hidden; height: 16px; }
-        .progress-bar { height: 100%; border-radius: 4px; text-align: center; color: white; font-size: 0.75rem; line-height: 16px; transition: width 0.4s ease; }
-        .progress-green { background-color: #28a745; }
-        .progress-orange { background-color: #fd7e14; }
-        .progress-red { background-color: #dc3545; }
-        
-        @media (min-width: 768px) {
-            .form-grid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
-            .filters-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
-            .btn { width: auto; }
-            .notification { left: auto; max-width: 400px; }
+
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .notification.error {
+            background: #ef4444;
+        }
+
+        .notification.success {
+            background: var(--primary);
+        }
+
+        /* Responsividade adicional */
+        @media (max-width: 320px) {
+            .main-content {
+                padding: 0.5rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stat-number {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div id="connectionStatus" class="connection-status">Conectando...</div>
-        <div id="filialIndicator" class="filial-indicator">
-            <span id="filialNome">Nenhuma filial selecionada</span>
-        </div>
-
-        <div class="header">
-            <h1>Sistema de Expedição - Operação</h1>
-            <p>Gerencie o lançamento e o acompanhamento das expedições do CD</p>
-        </div>
-
-        <div id="filialSelection" class="filial-selection">
+    
+    <!-- Tela de Seleção de Filial -->
+    <div id="filialSelectionContainer" class="filial-selection-container">
+        <div class="filial-selection">
             <h2>Selecione a Filial</h2>
-            <div id="filiaisGrid" class="filiais-grid">
-                <div class="loading"><div class="spinner"></div>Carregando filiais...</div>
+            <p>Escolha sua filial para continuar</p>
+            <div id="filiaisGrid">
+                <!-- Filiais serão carregadas aqui -->
             </div>
         </div>
+    </div>
 
-        <div id="mainSystem" style="display: none;">
-            <div class="tabs">
-                <button class="tab" onclick="showTab('operacao')">Lançar Expedição</button>
-                <button class="tab" onclick="showTab('acompanhamento')">Acompanhamento</button>
-                <button class="btn btn-danger btn-small" onclick="trocarFilial()" style="margin: 8px; font-size: 0.75rem;">Trocar Filial</button>
-            </div>
+    <!-- App Principal -->
+    <div id="mainApp" style="display: none;">
+        
+        <!-- Header -->
+        <header class="mobile-header">
+            <h1>
+                <i data-feather="truck" class="w-5 h-5"></i>
+                Expedição Mobile
+            </h1>
+            <div class="filial-info" id="headerFilial">Filial: Carregando...</div>
+        </header>
 
-            <div id="operacao" class="tab-content">
-                <h2>Lançamento de Carga Individual</h2>
-                <form id="expeditionForm">
-                    <div class="form-grid">
+        <!-- Conteúdo Principal -->
+        <div class="main-content">
+            
+            <!-- Tela de Lançamento -->
+            <div id="lancamento" class="view-content active">
+                <div class="card">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 text-center">Lançar Expedição</h2>
+                    <p class="text-sm text-gray-500 mb-6 text-center">Data e hora serão registradas automaticamente</p>
+                    
+                    <form id="expeditionForm">
                         <div class="form-group">
-                            <label for="lancar_lojaSelect">Loja:</label>
-                            <select id="lancar_lojaSelect" required><option value="">Carregando...</option></select>
-                        </div>
-                        <div class="form-group">
-                            <label for="lancar_docaSelect">Doca de Preparação:</label>
-                            <select id="lancar_docaSelect" required><option value="">Carregando...</option></select>
-                        </div>
-                        <div class="form-group">
-                            <label for="lancar_palletsInput">Pallets:</label>
-                            <input type="number" id="lancar_palletsInput" min="0" required value="0">
-                        </div>
-                        <div class="form-group">
-                            <label for="lancar_rolltrainersInput">RollTrainers:</label>
-                            <input type="number" id="lancar_rolltrainersInput" min="0" required value="0">
-                        </div>
-                        <div class="form-group" style="grid-column: 1 / -1;">
-                            <label for="lancar_liderSelect">Líder Responsável:</label>
-                            <select id="lancar_liderSelect" required><option value="">Carregando...</option></select>
-                        </div>
-                        <div class="form-group" style="grid-column: 1 / -1;">
-                            <label for="lancar_observacoes">Observações:</label>
-                            <textarea id="lancar_observacoes" placeholder="Observações para esta carga específica..."></textarea>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Lançar Carga para Agrupamento</button>
-                </form>
-                <div id="operacaoAlert"></div>
-            </div>
-
-            <div id="acompanhamento" class="tab-content">
-                <h2>Acompanhamento de Expedições</h2>
-                 <div class="filters-section">
-                    <div class="filters-grid">
-                        <div class="form-group">
-                            <label for="filtroStatus">Filtrar por Status:</label>
-                            <select id="filtroStatus" onchange="applyFilters()">
-                                <option value="">Todos</option>
-                                <option value="pendente">Pendente</option>
-                                <option value="aguardando_agrupamento">Aguardando Agrupamento</option>
-                                <option value="aguardando_veiculo">Aguardando Veículo</option>
-                                <option value="em_carregamento">Em Carregamento</option>
-                                <option value="carregado">Carregado</option>
-                                <option value="saiu_para_entrega">Saiu para Entrega</option>
-                                <option value="entregue">Entregue</option>
-                                <option value="cancelado">Cancelado</option>
+                            <label for="lojaSelect">Loja *</label>
+                            <select id="lojaSelect" required>
+                                <option value="">Selecione a loja</option>
                             </select>
                         </div>
+
                         <div class="form-group">
-                            <label for="searchInput">Pesquisar:</label>
-                            <input type="text" id="searchInput" placeholder="Buscar por loja, doca, placa..." onkeyup="applyFilters()">
+                            <label for="docaSelect">Doca de Preparação *</label>
+                            <select id="docaSelect" required>
+                                <option value="">Selecione a doca</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="liderSelect">Líder Responsável *</label>
+                            <select id="liderSelect" required>
+                                <option value="">Selecione o líder</option>
+                            </select>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div class="form-group">
+                                <label for="palletsInput">Pallets</label>
+                                <input type="number" id="palletsInput" min="0" value="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="rolltrainersInput">RollTrainers</label>
+                                <input type="number" id="rolltrainersInput" min="0" value="0" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="observacoes">Observações</label>
+                            <textarea id="observacoes" placeholder="Observações opcionais..." rows="3"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i data-feather="plus-circle" class="w-4 h-4" style="display: inline; margin-right: 8px;"></i>
+                            Lançar Expedição
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tela de Acompanhamento -->
+            <div id="acompanhamento" class="view-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalExpedicoes">0</div>
+                        <div class="stat-label">Total</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #F77F00, #FCBF49);">
+                        <div class="stat-number" id="pendentesCount">0</div>
+                        <div class="stat-label">Pendentes</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #00D4AA, #00B4D8);">
+                        <div class="stat-number" id="emAndamentoCount">0</div>
+                        <div class="stat-label">Em Andamento</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #10B981, #34D399);">
+                        <div class="stat-number" id="concluidasCount">0</div>
+                        <div class="stat-label">Concluídas Hoje</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="font-semibold text-gray-800 mb-4">Expedições Recentes</h3>
+                    <div id="expeditionsList">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Carregando expedições...
                         </div>
                     </div>
                 </div>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Data/Hora</th>
-                                <th>Loja(s)</th>
-                                <th>Pallets</th>
-                                <th>Rolls</th>
-                                <th>Doca</th>
-                                <th>Líder</th>
-                                <th>Status</th>
-                                <th>Veículo</th>
-                                <th>Ocupação</th>
-                                <th>Motorista</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="acompanhamentoBody"></tbody>
-                    </table>
-                </div>
             </div>
+
         </div>
+
+        <!-- Navegação Bottom -->
+        <nav class="bottom-nav">
+            <a href="#lancamento" class="nav-item active" onclick="showView('lancamento', this)">
+                <i data-feather="plus-circle" class="w-5 h-5"></i>
+                <span>Lançar</span>
+            </a>
+            <a href="#acompanhamento" class="nav-item" onclick="showView('acompanhamento', this)">
+                <i data-feather="list" class="w-5 h-5"></i>
+                <span>Acompanhar</span>
+            </a>
+            <a href="#trocar" class="nav-item" onclick="trocarFilial()">
+                <i data-feather="repeat" class="w-5 h-5"></i>
+                <span>Trocar Filial</span>
+            </a>
+        </nav>
+
     </div>
 
-    <!-- Modal de Edição (Mantido para correções operacionais) -->
-    <div id="editExpeditionModal" class="modal-overlay">
-        <div class="modal-content">
-            <h3 class="modal-title">Editar Expedição</h3>
-            <form id="editExpeditionForm">
-                <input type="hidden" id="editExpeditionId">
-                <div class="form-group">
-                    <label>Itens (informativo):</label>
-                    <div id="editLojasContainer" style="padding: 10px; background-color: #f0f0f0; border-radius: 8px; min-height: 50px;"></div>
-                </div>
-                <div class="form-group">
-                    <label for="editObservacoes">Observações:</label>
-                    <textarea id="editObservacoes"></textarea>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
-                    <button type="button" class="btn btn-danger" onclick="closeEditModal()">Cancelar</button>
-                </div>
-            </form>
-        </div>
-    </div>
+    <!-- Container de Notificações -->
+    <div id="notificationContainer"></div>
 
     <script>
-        // Configuração do Supabase
+        // Configuração da API
         const SUPABASE_URL = 'https://owsoweqqttcmuuaohxke.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93c293ZXFxdHRjbXV1YW9oeGtlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyMjQ5OTAsImV4cCI6MjA3MTgwMDk5MH0.Iee27SUOIkhMFvgDWXrW3C38DUuMr0MyVtR-NjF6FRk';
-        const headers = { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json' };
+        const headers = {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json'
+        };
 
-        // Variáveis de estado e cache
-        let lojas = [], docas = [], lideres = [], veiculos = [], motoristas = [];
-        let filiais = [], selectedFilial = null;
-        let allExpeditions = [], filteredExpeditions = [];
+        // Variáveis globais
+        let selectedFilial = null;
+        let lojas = [], docas = [], lideres = [];
+        let allExpeditions = [];
 
-        async function supabaseRequest(endpoint, method = 'GET', data = null, filterByFilial = true) {
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadFiliais();
+            feather.replace();
+            
+            // Event listeners
+            document.getElementById('expeditionForm').addEventListener('submit', handleLancarExpedicao);
+        });
+
+        // Função para requisições ao Supabase
+        async function supabaseRequest(endpoint, method = 'GET', data = null, includeFilialFilter = true) {
             let url = `${SUPABASE_URL}/rest/v1/${endpoint}`;
-            const queryParams = new URLSearchParams();
-
-            if (filterByFilial && selectedFilial && method === 'GET') {
-                queryParams.append('filial', `eq.${selectedFilial.nome}`);
+            
+            if (includeFilialFilter && selectedFilial && method === 'GET') {
+                const separator = url.includes('?') ? '&' : '?';
+                url += `${separator}filial=eq.${selectedFilial.nome}`;
             }
-            if(endpoint.includes('?')){ // Adiciona params existentes
-                 new URLSearchParams(endpoint.split('?')[1]).forEach((val, key) => queryParams.append(key, val));
-                 url = `${SUPABASE_URL}/rest/v1/${endpoint.split('?')[0]}`;
-            }
-
+            
             const options = { method, headers: { ...headers } };
-            if (data) {
-                if (filterByFilial && selectedFilial && (method === 'POST' || method === 'PATCH')) {
+            
+            if (data && (method === 'POST' || method === 'PATCH')) {
+                if (includeFilialFilter && selectedFilial) {
                     if (Array.isArray(data)) {
                         data = data.map(item => ({ ...item, filial: selectedFilial.nome }));
                     } else {
-                        data.filial = selectedFilial.nome;
+                        data = { ...data, filial: selectedFilial.nome };
                     }
                 }
                 options.body = JSON.stringify(data);
-                if(method !== 'DELETE') options.headers.Prefer = 'return=representation';
+                if (method !== 'DELETE') {
+                    options.headers.Prefer = 'return=representation';
+                }
             }
             
-            const finalUrl = `${url}?${queryParams}`;
-            const response = await fetch(finalUrl, options);
-            if (!response.ok) throw new Error(`Erro na API: ${response.statusText}`);
-            if (response.status === 204) return null; // No content for DELETE
-            return response.json();
-        }
-
-        function showNotification(message, type = 'success') {
-            const el = document.createElement('div');
-            el.className = `notification ${type}`;
-            el.textContent = message;
-            document.body.appendChild(el);
-            setTimeout(() => { el.remove(); }, 3500);
-        }
-
-        document.addEventListener('DOMContentLoaded', async () => {
             try {
-                await supabaseRequest('filiais?select=nome&limit=1', 'GET', null, false);
-                document.getElementById('connectionStatus').textContent = 'Conectado com Sucesso';
-                await loadFiliais();
-            } catch (e) {
-                document.getElementById('connectionStatus').textContent = 'Erro de Conexão';
-                document.getElementById('connectionStatus').classList.add('error');
+                const response = await fetch(url, options);
+                if (!response.ok) {
+                    throw new Error(`Erro ${response.status}: ${await response.text()}`);
+                }
+                return method === 'DELETE' ? null : await response.json();
+            } catch (error) {
+                console.error(`Erro na requisição: ${method} ${url}`, error);
+                showNotification(`Erro: ${error.message}`, 'error');
+                throw error;
             }
-        });
-
-        async function loadFiliais() {
-            const grid = document.getElementById('filiaisGrid');
-            try {
-                filiais = await supabaseRequest('filiais?select=nome,descricao&ativo=eq.true&order=nome', 'GET', null, false);
-                grid.innerHTML = filiais.map(f => `
-                    <div class="filial-card" onclick='selectFilial(${JSON.stringify(f)})'>
-                        <h3>${f.nome}</h3><p>${f.descricao || 'Acessar sistema'}</p>
-                    </div>`).join('');
-            } catch (e) { grid.innerHTML = '<div class="alert alert-error">Falha ao carregar filiais.</div>'; }
         }
 
+        // Carregar filiais
+        async function loadFiliais() {
+            try {
+                const filiaisData = await supabaseRequest('filiais?select=nome,descricao,ativo&ativo=eq.true&order=nome', 'GET', null, false);
+                renderFiliais(filiaisData);
+            } catch (error) {
+                document.getElementById('filiaisGrid').innerHTML = '<p class="text-red-500 text-center">Erro ao carregar filiais.</p>';
+            }
+        }
+
+        function renderFiliais(filiais) {
+            const grid = document.getElementById('filiaisGrid');
+            grid.innerHTML = '';
+            
+            filiais.forEach(filial => {
+                const card = document.createElement('div');
+                card.className = 'filial-card';
+                card.onclick = () => selectFilial(filial);
+                card.innerHTML = `
+                    <h3>${filial.nome}</h3>
+                    <p>${filial.descricao || 'Filial'}</p>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Selecionar filial
         async function selectFilial(filial) {
             selectedFilial = filial;
-            document.getElementById('filialNome').textContent = `Operando na Filial: ${filial.nome}`;
-            document.getElementById('filialIndicator').classList.add('active');
-            document.getElementById('filialSelection').style.display = 'none';
-            document.getElementById('mainSystem').style.display = 'block';
-            document.querySelectorAll('.tab').forEach(t => t.classList.add('enabled'));
-            await loadSelectData();
-            showTab('operacao');
+            document.getElementById('headerFilial').textContent = `Filial: ${selectedFilial.nome}`;
+            
+            // Esconder seleção e mostrar app
+            document.getElementById('filialSelectionContainer').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            
+            showNotification(`Filial ${selectedFilial.nome} selecionada!`, 'success');
+            
+            // Carregar dados
+            await loadAppData();
         }
-        
+
+        // Trocar filial
         function trocarFilial() {
             selectedFilial = null;
-            document.getElementById('filialIndicator').classList.remove('active');
-            document.getElementById('mainSystem').style.display = 'none';
-            document.getElementById('filialSelection').style.display = 'block';
+            document.getElementById('mainApp').style.display = 'none';
+            document.getElementById('filialSelectionContainer').style.display = 'block';
         }
 
-        async function loadSelectData() {
+        // Carregar dados do app
+        async function loadAppData() {
             try {
-                [lojas, docas, lideres, veiculos, motoristas] = await Promise.all([
-                    supabaseRequest('lojas?ativo=eq.true&order=nome'),
+                const [lojasData, docasData, lideresData] = await Promise.all([
+                    supabaseRequest('lojas?select=*&ativo=eq.true&order=codigo,nome'),
                     supabaseRequest('docas?ativo=eq.true&order=nome'),
-                    supabaseRequest('lideres?ativo=eq.true&order=nome'),
-                    supabaseRequest('veiculos?order=placa', 'GET', null, false), // Veículos são globais
-                    supabaseRequest('motoristas?order=nome', 'GET', null, false) // Motoristas são globais
+                    supabaseRequest('lideres?ativo=eq.true&order=nome')
                 ]);
+                
+                lojas = lojasData || [];
+                docas = docasData || [];
+                lideres = lideresData || [];
+                
                 populateSelects();
-            } catch (e) { showNotification('Erro ao carregar dados de base.', 'error'); }
+                loadExpeditions();
+                
+            } catch (error) {
+                showNotification('Erro ao carregar dados', 'error');
+            }
         }
-        
-        function populateSelects() {
-            const docasDisponiveis = docas.filter(d => d.status === 'disponivel');
-            document.getElementById('lancar_lojaSelect').innerHTML = '<option value="">Selecione...</option>' + lojas.map(l => `<option value="${l.id}">${l.nome} (${l.codigo})</option>`).join('');
-            document.getElementById('lancar_docaSelect').innerHTML = '<option value="">Selecione...</option>' + docasDisponiveis.map(d => `<option value="${d.id}">${d.nome}</option>`).join('');
-            document.getElementById('lancar_liderSelect').innerHTML = '<option value="">Selecione...</option>' + lideres.map(l => `<option value="${l.id}">${l.nome}</option>`).join('');
-        }
-        
-        function showTab(tabName) {
-            document.querySelectorAll('.tab, .tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelector(`[onclick="showTab('${tabName}')"]`).classList.add('active');
-            document.getElementById(tabName).classList.add('active');
-            if (tabName === 'acompanhamento') loadAcompanhamento();
-        }
-        
-        document.getElementById('expeditionForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const form = e.target;
-            const lojaId = form.lancar_lojaSelect.value;
-            const docaId = form.lancar_docaSelect.value;
-            const pallets = parseInt(form.lancar_palletsInput.value) || 0;
-            const rolltrainers = parseInt(form.lancar_rolltrainersInput.value) || 0;
-            const liderId = form.lancar_liderSelect.value;
-            const observacoes = form.lancar_observacoes.value;
 
-            if (!lojaId || !docaId || !liderId) return showNotification('Preencha Loja, Doca e Líder!', 'error');
-            if(pallets === 0 && rolltrainers === 0) return showNotification('Adicione pelo menos 1 pallet ou 1 rolltrainer!', 'error');
+        // Preencher selects
+        function populateSelects() {
+            // Lojas
+            const lojaSelect = document.getElementById('lojaSelect');
+            lojaSelect.innerHTML = '<option value="">Selecione a loja</option>';
+            lojas.forEach(loja => {
+                lojaSelect.innerHTML += `<option value="${loja.id}">${loja.codigo} - ${loja.nome}</option>`;
+            });
+
+            // Docas
+            const docaSelect = document.getElementById('docaSelect');
+            docaSelect.innerHTML = '<option value="">Selecione a doca</option>';
+            docas.forEach(doca => {
+                docaSelect.innerHTML += `<option value="${doca.id}">${doca.nome}</option>`;
+            });
+
+            // Líderes
+            const liderSelect = document.getElementById('liderSelect');
+            liderSelect.innerHTML = '<option value="">Selecione o líder</option>';
+            lideres.forEach(lider => {
+                liderSelect.innerHTML += `<option value="${lider.id}">${lider.nome}</option>`;
+            });
+        }
+
+        // Lançar expedição
+        async function handleLancarExpedicao(e) {
+            e.preventDefault();
+            
+            const lojaId = document.getElementById('lojaSelect').value;
+            const docaId = document.getElementById('docaSelect').value;
+            const liderId = document.getElementById('liderSelect').value;
+            const pallets = parseInt(document.getElementById('palletsInput').value) || 0;
+            const rolltrainers = parseInt(document.getElementById('rolltrainersInput').value) || 0;
+            const observacoes = document.getElementById('observacoes').value.trim();
+
+            // Validações
+            if (!lojaId || !docaId || !liderId) {
+                showNotification('Preencha todos os campos obrigatórios!', 'error');
+                return;
+            }
+
+            if (pallets === 0 && rolltrainers === 0) {
+                showNotification('Informe ao menos uma quantidade (Pallets ou RollTrainers)!', 'error');
+                return;
+            }
 
             try {
-                // CORREÇÃO: Status alterado para 'aguardando_agrupamento'
+                // Criar expedição
                 const expeditionData = {
                     data_hora: new Date().toISOString(),
                     lider_id: liderId,
                     doca_id: docaId,
-                    observacoes: observacoes || null,
-                    status: 'aguardando_agrupamento' 
+                    status: 'aguardando_agrupamento',
+                    observacoes: observacoes || null
                 };
+                
                 const expeditionResponse = await supabaseRequest('expeditions', 'POST', expeditionData);
+                if (!expeditionResponse || expeditionResponse.length === 0) {
+                    throw new Error("Falha ao criar expedição");
+                }
+                
                 const newExpeditionId = expeditionResponse[0].id;
 
+                // Criar item da expedição
                 const itemData = {
                     expedition_id: newExpeditionId,
                     loja_id: lojaId,
-                    pallets,
-                    rolltrainers,
+                    pallets: pallets,
+                    rolltrainers: rolltrainers,
                     status_descarga: 'pendente'
                 };
+                
                 await supabaseRequest('expedition_items', 'POST', itemData);
 
-                showNotification('Carga lançada para o Transporte agrupar!', 'success');
-                form.reset();
-                form.lancar_lojaSelect.focus();
-            } catch (error) {
-                showNotification(`Erro ao lançar carga: ${error.message}`, 'error');
-            }
-        });
-        
-        async function loadAcompanhamento() {
-            const tbody = document.getElementById('acompanhamentoBody');
-            tbody.innerHTML = '<tr><td colspan="11" class="loading"><div class="spinner"></div></td></tr>';
-            
-            try {
-                const [expeditions, items] = await Promise.all([
-                    supabaseRequest('expeditions?status=not.in.(entregue,cancelado)&order=data_hora.desc'),
-                    supabaseRequest('expedition_items')
-                ]);
+                const lojaNome = lojas.find(l => l.id === lojaId)?.nome || 'Loja';
+                showNotification(`Expedição para ${lojaNome} lançada com sucesso!`, 'success');
 
+                // Limpar formulário
+                document.getElementById('expeditionForm').reset();
+                
+                // Recarregar expedições se estiver na tela de acompanhamento
+                if (document.getElementById('acompanhamento').classList.contains('active')) {
+                    loadExpeditions();
+                }
+
+            } catch (error) {
+                console.error('Erro ao lançar expedição:', error);
+                showNotification(`Erro ao lançar expedição: ${error.message}`, 'error');
+            }
+        }
+
+        // Carregar expedições
+        async function loadExpeditions() {
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                const expeditions = await supabaseRequest(`expeditions?data_hora=gte.${today}T00:00:00&data_hora=lte.${today}T23:59:59&order=data_hora.desc`);
+                const items = await supabaseRequest('expedition_items');
+                
+                // Combinar expedições com seus itens
                 allExpeditions = expeditions.map(exp => {
                     const expItems = items.filter(item => item.expedition_id === exp.id);
-                    const veiculo = exp.veiculo_id ? veiculos.find(v => v.id === exp.veiculo_id) : null;
-                    const totalCarga = (expItems.reduce((s, i) => s + i.pallets, 0)) + ((expItems.reduce((s, i) => s + i.rolltrainers, 0)) / 2);
-                    const ocupacao = veiculo?.capacidade_pallets > 0 ? (totalCarga / veiculo.capacidade_pallets) * 100 : 0;
-
-                    return { ...exp, items: expItems, total_pallets: expItems.reduce((s, i) => s + i.pallets, 0), total_rolltrainers: expItems.reduce((s, i) => s + i.rolltrainers, 0), lojas_info: expItems.map(i => lojas.find(l => l.id === i.loja_id)?.nome).join(', '), doca_nome: docas.find(d => d.id === exp.doca_id)?.nome || 'N/A', lider_nome: lideres.find(l => l.id === exp.lider_id)?.nome || 'N/A', veiculo_placa: veiculo?.placa || '-', motorista_nome: motoristas.find(m => m.id === exp.motorista_id)?.nome || '-', ocupacao: ocupacao.toFixed(0) };
+                    const loja = expItems.length > 0 ? lojas.find(l => l.id === expItems[0].loja_id) : null;
+                    const lider = lideres.find(l => l.id === exp.lider_id);
+                    
+                    return {
+                        ...exp,
+                        items: expItems,
+                        loja_nome: loja ? `${loja.codigo} - ${loja.nome}` : 'N/A',
+                        lider_nome: lider ? lider.nome : 'N/A',
+                        total_pallets: expItems.reduce((sum, item) => sum + (item.pallets || 0), 0),
+                        total_rolltrainers: expItems.reduce((sum, item) => sum + (item.rolltrainers || 0), 0)
+                    };
                 });
-                applyFilters();
-            } catch(e) {
-                tbody.innerHTML = `<tr><td colspan="11"><div class="alert alert-error">Falha ao carregar dados: ${e.message}</div></td></tr>`;
+
+                updateStats();
+                renderExpeditions();
+
+            } catch (error) {
+                console.error('Erro ao carregar expedições:', error);
+                document.getElementById('expeditionsList').innerHTML = '<p class="text-center text-red-500">Erro ao carregar expedições</p>';
             }
         }
-        
-        function applyFilters() {
-             const status = document.getElementById('filtroStatus').value;
-             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-             filteredExpeditions = allExpeditions.filter(exp => (status ? exp.status === status : true) && (searchTerm ? `${exp.lojas_info} ${exp.doca_nome} ${exp.veiculo_placa} ${exp.motorista_nome}`.toLowerCase().includes(searchTerm) : true));
-             renderAcompanhamentoTable(filteredExpeditions);
-        }
-        
-        function renderAcompanhamentoTable(data) {
-             const tbody = document.getElementById('acompanhamentoBody');
-             if(data.length === 0) return tbody.innerHTML = '<tr><td colspan="11" style="text-align:center; padding: 20px;">Nenhuma expedição encontrada.</td></tr>';
-             tbody.innerHTML = data.map(exp => `
-                <tr>
-                    <td>${new Date(exp.data_hora).toLocaleString('pt-BR')}</td>
-                    <td>${exp.lojas_info}</td>
-                    <td>${exp.total_pallets}</td>
-                    <td>${exp.total_rolltrainers}</td>
-                    <td>${exp.doca_nome}</td>
-                    <td>${exp.lider_nome}</td>
-                    <td><span class="status-badge status-${exp.status}">${exp.status.replace(/_/g, ' ')}</span></td>
-                    <td>${exp.veiculo_placa}</td>
-                    <td>${exp.veiculo_placa !== '-' ? `<div class="progress-container"><div class="progress-bar ${exp.ocupacao > 100 ? 'progress-red' : exp.ocupacao > 80 ? 'progress-orange' : 'progress-green'}" style="width: ${Math.min(100, exp.ocupacao)}%;">${exp.ocupacao}%</div></div>` : '-'}</td>
-                    <td>${exp.motorista_nome}</td>
-                    <td>
-                        <button class="btn btn-primary btn-small" onclick='openEditModal("${exp.id}")'>Editar</button>
-                        <button class="btn btn-danger btn-small" onclick='deleteExpedition("${exp.id}")'>Del</button>
-                    </td>
-                </tr>`).join('');
-        }
-        
-        async function deleteExpedition(id) {
-            if (!confirm('Tem certeza? Isso excluirá a carga e seus itens.')) return;
-            try {
-                // Deleta primeiro os itens para evitar erro de chave estrangeira
-                await supabaseRequest(`expedition_items?expedition_id=eq.${id}`, 'DELETE');
-                await supabaseRequest(`expeditions?id=eq.${id}`, 'DELETE');
-                showNotification('Expedição excluída!', 'success');
-                loadAcompanhamento();
-            } catch (e) { showNotification(`Erro ao excluir: ${e.message}`, 'error'); }
-        }
-        
-        function openEditModal(id) {
-            const exp = allExpeditions.find(e => e.id === id);
-            if (!exp) return;
-            document.getElementById('editExpeditionId').value = id;
-            document.getElementById('editObservacoes').value = exp.observacoes || '';
-            document.getElementById('editLojasContainer').innerHTML = exp.items.map((item, i) => `<div><strong>Loja ${i+1}:</strong> ${lojas.find(l=>l.id===item.loja_id)?.nome||'N/A'} | <strong>P:</strong> ${item.pallets} | <strong>R:</strong> ${item.rolltrainers}</div>`).join('');
-            document.getElementById('editExpeditionModal').style.display = 'flex';
+
+        // Atualizar estatísticas
+        function updateStats() {
+            const total = allExpeditions.length;
+            const pendentes = allExpeditions.filter(e => ['aguardando_agrupamento', 'aguardando_veiculo'].includes(e.status)).length;
+            const emAndamento = allExpeditions.filter(e => ['em_carregamento', 'carregado', 'saiu_para_entrega'].includes(e.status)).length;
+            const concluidas = allExpeditions.filter(e => e.status === 'entregue').length;
+
+            document.getElementById('totalExpedicoes').textContent = total;
+            document.getElementById('pendentesCount').textContent = pendentes;
+            document.getElementById('emAndamentoCount').textContent = emAndamento;
+            document.getElementById('concluidasCount').textContent = concluidas;
         }
 
-        function closeEditModal() { document.getElementById('editExpeditionModal').style.display = 'none'; }
+        // Renderizar expedições
+        function renderExpeditions() {
+            const container = document.getElementById('expeditionsList');
+            
+            if (allExpeditions.length === 0) {
+                container.innerHTML = '<p class="text-center text-gray-500">Nenhuma expedição encontrada hoje</p>';
+                return;
+            }
 
-        document.getElementById('editExpeditionForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const id = document.getElementById('editExpeditionId').value;
-            const observacoes = document.getElementById('editObservacoes').value;
-            try {
-                await supabaseRequest(`expeditions?id=eq.${id}`, 'PATCH', { observacoes });
-                showNotification('Observação salva!', 'success');
-                closeEditModal();
-                loadAcompanhamento();
-            } catch(e) { showNotification(`Erro ao salvar: ${e.message}`, 'error'); }
-        });
+            container.innerHTML = allExpeditions.map(exp => `
+                <div class="expedition-item">
+                    <div class="expedition-header">
+                        <div>
+                            <div class="expedition-title">${exp.loja_nome}</div>
+                            <div class="expedition-time">${new Date(exp.data_hora).toLocaleString('pt-BR')}</div>
+                        </div>
+                        <span class="status-badge status-${exp.status}">${getStatusLabel(exp.status)}</span>
+                    </div>
+                    <div class="expedition-details">
+                        <strong>Líder:</strong> ${exp.lider_nome}<br>
+                        <strong>Carga:</strong> ${exp.total_pallets}P + ${exp.total_rolltrainers}R
+                        ${exp.observacoes ? `<br><strong>Obs:</strong> ${exp.observacoes}` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Obter label do status
+        function getStatusLabel(status) {
+            const labels = {
+                'aguardando_agrupamento': 'Aguard. Agrupamento',
+                'aguardando_veiculo': 'Aguard. Veículo',
+                'em_carregamento': 'Carregando',
+                'carregado': 'Carregado',
+                'saiu_para_entrega': 'Em Entrega',
+                'entregue': 'Entregue',
+                'cancelado': 'Cancelado'
+            };
+            return labels[status] || status;
+        }
+
+        // Navegação entre views
+        function showView(viewId, element) {
+            // Remover classe active de todas as views
+            document.querySelectorAll('.view-content').forEach(view => {
+                view.classList.remove('active');
+            });
+            
+            // Remover classe active de todos os nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // Ativar view e nav item
+            document.getElementById(viewId).classList.add('active');
+            if (element) element.classList.add('active');
+
+            // Carregar dados específicos da view
+            if (viewId === 'acompanhamento') {
+                loadExpeditions();
+            }
+
+            // Atualizar ícones
+            feather.replace();
+        }
+
+        // Sistema de notificações
+        function showNotification(message, type = 'success') {
+            // Remover notificação existente
+            const existing = document.getElementById('currentNotification');
+            if (existing) {
+                existing.remove();
+            }
+
+            // Criar nova notificação
+            const notification = document.createElement('div');
+            notification.id = 'currentNotification';
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+
+            document.getElementById('notificationContainer').appendChild(notification);
+
+            // Mostrar notificação
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+
+            // Esconder após 3 segundos
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        // Auto-refresh das expedições a cada 30 segundos quando na tela de acompanhamento
+        setInterval(() => {
+            if (document.getElementById('acompanhamento').classList.contains('active') && selectedFilial) {
+                loadExpeditions();
+            }
+        }, 30000);
+
     </script>
 </body>
 </html>
