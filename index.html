@@ -315,6 +315,7 @@
             font-weight: 700;
             color: var(--dark);
             font-size: 1rem;
+            line-height: 1.2;
         }
 
         .expedition-time {
@@ -326,6 +327,7 @@
             font-size: 0.85rem;
             color: #4b5563;
             margin-bottom: 8px;
+            line-height: 1.4;
         }
 
         /* Status badges */
@@ -338,12 +340,18 @@
             display: inline-block;
         }
 
+        .status-pendente { background-color: #fee2e2; color: #991b1b; }
         .status-aguardando_agrupamento { background-color: #fef3c7; color: #92400e; }
+        .status-aguardando_doca { background-color: #e0e7ff; color: #3730a3; }
         .status-aguardando_veiculo { background-color: #e0e7ff; color: #3730a3; }
         .status-em_carregamento { background-color: #fef3c7; color: #92400e; }
         .status-carregado { background-color: #d1fae5; color: #065f46; }
+        .status-aguardando_faturamento { background-color: #dbeafe; color: #1e40af; }
+        .status_faturamento_iniciado { background-color: #fef3c7; color: #92400e; }
+        .status-faturado { background-color: #d1fae5; color: #065f46; }
         .status-saiu_para_entrega { background-color: #cffafe; color: #0e7490; }
         .status-entregue { background-color: #f3f4f6; color: #4b5563; }
+        .status-retornando_cd { background-color: #e5e7eb; color: #1f2937; }
         .status-cancelado { background-color: #fee2e2; color: #991b1b; }
 
         /* Loading */
@@ -398,6 +406,35 @@
 
         .notification.success {
             background: var(--primary);
+        }
+
+        /* Badges especiais */
+        .type-badge {
+            background: #0077B6;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 0.65rem;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+
+        .urgency-badge {
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 0.65rem;
+            font-weight: bold;
+            margin-left: 4px;
+        }
+
+        .urgency-4h {
+            background: #FCBF49;
+            color: white;
+        }
+
+        .urgency-8h {
+            background: #F77F00;
+            color: white;
         }
 
         /* Responsividade adicional */
@@ -563,7 +600,7 @@
 
         // Variáveis globais
         let selectedFilial = null;
-        let lojas = [], docas = [], lideres = [];
+        let lojas = [], docas = [], lideres = [], veiculos = [], motoristas = [];
         let allExpeditions = [];
 
         // Inicialização
@@ -664,15 +701,19 @@
         // Carregar dados do app
         async function loadAppData() {
             try {
-                const [lojasData, docasData, lideresData] = await Promise.all([
+                const [lojasData, docasData, lideresData, veiculosData, motoristasData] = await Promise.all([
                     supabaseRequest('lojas?select=*&ativo=eq.true&order=codigo,nome'),
                     supabaseRequest('docas?ativo=eq.true&order=nome'),
-                    supabaseRequest('lideres?ativo=eq.true&order=nome')
+                    supabaseRequest('lideres?ativo=eq.true&order=nome'),
+                    supabaseRequest('veiculos?order=placa'),
+                    supabaseRequest('motoristas?order=nome')
                 ]);
                 
                 lojas = lojasData || [];
                 docas = docasData || [];
                 lideres = lideresData || [];
+                veiculos = veiculosData || [];
+                motoristas = motoristasData || [];
                 
                 populateSelects();
                 loadExpeditions();
@@ -780,16 +821,51 @@
                 const expeditions = await supabaseRequest(`expeditions?data_hora=gte.${today}T00:00:00&data_hora=lte.${today}T23:59:59&order=data_hora.desc`);
                 const items = await supabaseRequest('expedition_items');
                 
-                // Combinar expedições com seus itens
+                // Combinar expedições com seus itens e determinar ordem de entrega
                 allExpeditions = expeditions.map(exp => {
                     const expItems = items.filter(item => item.expedition_id === exp.id);
-                    const loja = expItems.length > 0 ? lojas.find(l => l.id === expItems[0].loja_id) : null;
+                    
+                    // Determinar informações da expedição baseado no tipo
+                    let expeditionInfo = {};
+                    
+                    if (expItems.length === 1) {
+                        // Expedição individual - uma loja
+                        const loja = lojas.find(l => l.id === expItems[0].loja_id);
+                        expeditionInfo = {
+                            tipo: 'individual',
+                            loja_nome: loja ? `${loja.codigo} - ${loja.nome}` : 'N/A',
+                            ordem_entrega: 1,
+                            total_lojas: 1
+                        };
+                    } else if (expItems.length > 1) {
+                        // Expedição agrupada - múltiplas lojas
+                        const lojasNomes = expItems.map(item => {
+                            const loja = lojas.find(l => l.id === item.loja_id);
+                            return loja ? `${loja.codigo}` : 'N/A';
+                        }).join(', ');
+                        
+                        expeditionInfo = {
+                            tipo: 'agrupada',
+                            loja_nome: `${expItems.length} lojas: ${lojasNomes}`,
+                            ordem_entrega: 'Múltiplas',
+                            total_lojas: expItems.length
+                        };
+                    } else {
+                        // Expedição sem itens
+                        expeditionInfo = {
+                            tipo: 'vazia',
+                            loja_nome: 'Sem itens',
+                            ordem_entrega: 0,
+                            total_lojas: 0
+                        };
+                    }
+                    
                     const lider = lideres.find(l => l.id === exp.lider_id);
                     
                     return {
                         ...exp,
+                        ...expeditionInfo,
                         items: expItems,
-                        loja_nome: loja ? `${loja.codigo} - ${loja.nome}` : 'N/A',
                         lider_nome: lider ? lider.nome : 'N/A',
                         total_pallets: expItems.reduce((sum, item) => sum + (item.pallets || 0), 0),
                         total_rolltrainers: expItems.reduce((sum, item) => sum + (item.rolltrainers || 0), 0)
@@ -827,36 +903,108 @@
                 return;
             }
 
-            container.innerHTML = allExpeditions.map(exp => `
-                <div class="expedition-item">
-                    <div class="expedition-header">
-                        <div>
-                            <div class="expedition-title">${exp.loja_nome}</div>
-                            <div class="expedition-time">${new Date(exp.data_hora).toLocaleString('pt-BR')}</div>
+            container.innerHTML = allExpeditions.map(exp => {
+                // Determinar informações do veículo/motorista se alocado
+                let veiculoInfo = '';
+                if (exp.veiculo_id && exp.motorista_id) {
+                    const veiculo = veiculos.find(v => v.id === exp.veiculo_id);
+                    const motorista = motoristas.find(m => m.id === exp.motorista_id);
+                    const placaVeiculo = veiculo ? veiculo.placa : 'N/A';
+                    const nomeMotorista = motorista ? motorista.nome : 'N/A';
+                    veiculoInfo = `<br><strong>🚚 ${placaVeiculo}</strong> - ${nomeMotorista}`;
+                } else if (exp.veiculo_id || exp.motorista_id) {
+                    veiculoInfo = `<br><strong>🚛 Transporte:</strong> Em alocação...`;
+                }
+                
+                // Criar detalhes da ordem de entrega
+                let ordemInfo = '';
+                if (exp.tipo === 'individual') {
+                    ordemInfo = `<br><strong>📍 Ordem:</strong> Entrega única`;
+                } else if (exp.tipo === 'agrupada') {
+                    // Para expedições agrupadas, mostrar as lojas em ordem
+                    const lojasOrdem = exp.items
+                        .sort((a, b) => {
+                            // Ordenar por data de criação ou por ID como fallback
+                            const dateA = new Date(a.created_at || a.data_criacao || 0);
+                            const dateB = new Date(b.created_at || b.data_criacao || 0);
+                            if (dateA.getTime() === dateB.getTime()) {
+                                return parseInt(a.id) - parseInt(b.id); // Fallback para ID
+                            }
+                            return dateA - dateB;
+                        })
+                        .map((item, index) => {
+                            const loja = lojas.find(l => l.id === item.loja_id);
+                            const statusIcon = getStatusIcon(item.status_descarga || 'pendente');
+                            return `${statusIcon}${index + 1}º ${loja ? loja.codigo : 'N/A'}`;
+                        }).join(' → ');
+                    ordemInfo = `<br><strong>📍 Roteiro:</strong> ${lojasOrdem}`;
+                }
+                
+                // Badge de tipo de expedição
+                let tipoBadge = '';
+                if (exp.tipo === 'agrupada') {
+                    tipoBadge = `<span class="type-badge">ROTA</span>`;
+                }
+
+                // Indicador de urgência baseado no tempo
+                let urgencyBadge = '';
+                const horasDecorridas = (new Date() - new Date(exp.data_hora)) / (1000 * 60 * 60);
+                if (horasDecorridas > 8 && !['entregue', 'cancelado'].includes(exp.status)) {
+                    urgencyBadge = `<span class="urgency-badge urgency-8h">⏰ +8h</span>`;
+                } else if (horasDecorridas > 4 && !['entregue', 'cancelado'].includes(exp.status)) {
+                    urgencyBadge = `<span class="urgency-badge urgency-4h">⏰ +4h</span>`;
+                }
+
+                return `
+                    <div class="expedition-item">
+                        <div class="expedition-header">
+                            <div>
+                                <div class="expedition-title">
+                                    ${exp.loja_nome}${tipoBadge}${urgencyBadge}
+                                </div>
+                                <div class="expedition-time">${new Date(exp.data_hora).toLocaleString('pt-BR')}</div>
+                            </div>
+                            <span class="status-badge status-${exp.status}">${getStatusLabel(exp.status)}</span>
                         </div>
-                        <span class="status-badge status-${exp.status}">${getStatusLabel(exp.status)}</span>
+                        <div class="expedition-details">
+                            <strong>👤 Líder:</strong> ${exp.lider_nome}<br>
+                            <strong>📦 Carga:</strong> ${exp.total_pallets}P + ${exp.total_rolltrainers}R${veiculoInfo}${ordemInfo}
+                            ${exp.observacoes ? `<br><strong>💬 Obs:</strong> ${exp.observacoes}` : ''}
+                        </div>
                     </div>
-                    <div class="expedition-details">
-                        <strong>Líder:</strong> ${exp.lider_nome}<br>
-                        <strong>Carga:</strong> ${exp.total_pallets}P + ${exp.total_rolltrainers}R
-                        ${exp.observacoes ? `<br><strong>Obs:</strong> ${exp.observacoes}` : ''}
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
+        }
+
+        // Obter ícone do status da descarga
+        function getStatusIcon(statusDescarga) {
+            const icons = {
+                'pendente': '⏳',
+                'em_descarga': '🚚',
+                'descarregado': '✅',
+                'cancelado': '❌'
+            };
+            return icons[statusDescarga] || '⏳';
         }
 
         // Obter label do status
         function getStatusLabel(status) {
             const labels = {
+                'pendente': 'Pendente',
                 'aguardando_agrupamento': 'Aguard. Agrupamento',
+                'aguardando_doca': 'Aguard. Doca',
                 'aguardando_veiculo': 'Aguard. Veículo',
                 'em_carregamento': 'Carregando',
                 'carregado': 'Carregado',
+                'aguardando_faturamento': 'Aguard. Faturamento',
+                'faturamento_iniciado': 'Faturando',
+                'faturado': 'Faturado',
                 'saiu_para_entrega': 'Em Entrega',
                 'entregue': 'Entregue',
+                'retornando_cd': 'Retornando',
                 'cancelado': 'Cancelado'
             };
-            return labels[status] || status;
+            return labels[status] || status.replace(/_/g, ' ');
         }
 
         // Navegação entre views
