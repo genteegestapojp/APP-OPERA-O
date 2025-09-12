@@ -347,7 +347,7 @@
         .status-em_carregamento { background-color: #fef3c7; color: #92400e; }
         .status-carregado { background-color: #d1fae5; color: #065f46; }
         .status-aguardando_faturamento { background-color: #dbeafe; color: #1e40af; }
-        .status_faturamento_iniciado { background-color: #fef3c7; color: #92400e; }
+        .status-faturamento_iniciado { background-color: #fef3c7; color: #92400e; }
         .status-faturado { background-color: #d1fae5; color: #065f46; }
         .status-saiu_para_entrega { background-color: #cffafe; color: #0e7490; }
         .status-entregue { background-color: #f3f4f6; color: #4b5563; }
@@ -408,6 +408,10 @@
             background: var(--primary);
         }
 
+        .notification.info {
+            background: var(--accent);
+        }
+
         /* Badges especiais */
         .type-badge {
             background: #0077B6;
@@ -435,6 +439,16 @@
         .urgency-8h {
             background: #F77F00;
             color: white;
+        }
+
+        /* Filtros ativos */
+        .filter-active {
+            border-color: var(--primary) !important;
+            background: rgba(0, 212, 170, 0.05) !important;
+        }
+
+        .spinning {
+            animation: spin 1s linear infinite;
         }
 
         /* Responsividade adicional */
@@ -554,8 +568,46 @@
                     </div>
                 </div>
 
+                <!-- Filtros -->
+                <div class="card" style="padding: 16px;">
+                    <h3 class="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                        <i data-feather="filter" class="w-4 h-4"></i>
+                        Filtros
+                    </h3>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="filtroData" style="font-size: 0.8rem;">Data:</label>
+                            <input type="date" id="filtroData" onchange="applyFilters()" style="padding: 8px 12px; font-size: 0.9rem;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="filtroStatus" style="font-size: 0.8rem;">Status:</label>
+                            <select id="filtroStatus" onchange="applyFilters()" style="padding: 8px 12px; font-size: 0.9rem;">
+                                <option value="">Todos</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: end;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="filtroBusca" style="font-size: 0.8rem;">Buscar:</label>
+                            <input type="text" id="filtroBusca" placeholder="Loja, líder, doca..." onkeyup="applyFilters()" style="padding: 8px 12px; font-size: 0.9rem;">
+                        </div>
+                        <button class="btn btn-primary btn-small" onclick="refreshExpeditions()" style="height: fit-content; padding: 8px 12px; font-size: 0.8rem;">
+                            <i data-feather="refresh-cw" class="w-4 h-4" style="display: inline; margin-right: 4px;"></i>
+                            Atualizar
+                        </button>
+                    </div>
+                    
+                    <div style="margin-top: 12px; text-align: center;">
+                        <button class="btn btn-danger btn-small" onclick="clearFilters()" style="padding: 6px 16px; font-size: 0.75rem;">
+                            Limpar Filtros
+                        </button>
+                    </div>
+                </div>
+
                 <div class="card">
-                    <h3 class="font-semibold text-gray-800 mb-4">Expedições Recentes</h3>
+                    <h3 class="font-semibold text-gray-800 mb-4">Expedições</h3>
                     <div id="expeditionsList">
                         <div class="loading">
                             <div class="spinner"></div>
@@ -602,6 +654,7 @@
         let selectedFilial = null;
         let lojas = [], docas = [], lideres = [], veiculos = [], motoristas = [];
         let allExpeditions = [];
+        let filteredExpeditions = [];
 
         // Inicialização
         document.addEventListener('DOMContentLoaded', async () => {
@@ -716,6 +769,14 @@
                 motoristas = motoristasData || [];
                 
                 populateSelects();
+                
+                // Definir data padrão para hoje nos filtros
+                const hoje = new Date().toISOString().split('T')[0];
+                const filtroData = document.getElementById('filtroData');
+                if (filtroData) {
+                    filtroData.value = hoje;
+                }
+                
                 loadExpeditions();
                 
             } catch (error) {
@@ -765,6 +826,7 @@
                 liderSelect.innerHTML += `<option value="${lider.id}">${lider.nome}</option>`;
             });
         }
+
         // Lançar expedição
         async function handleLancarExpedicao(e) {
             e.preventDefault();
@@ -835,8 +897,11 @@
         // Carregar expedições
         async function loadExpeditions() {
             try {
-                const today = new Date().toISOString().split('T')[0];
-                const expeditions = await supabaseRequest(`expeditions?data_hora=gte.${today}T00:00:00&data_hora=lte.${today}T23:59:59&order=data_hora.desc`);
+                // Usar data do filtro ou hoje como padrão
+                const filtroData = document.getElementById('filtroData')?.value;
+                const dataConsulta = filtroData || new Date().toISOString().split('T')[0];
+                
+                const expeditions = await supabaseRequest(`expeditions?data_hora=gte.${dataConsulta}T00:00:00&data_hora=lte.${dataConsulta}T23:59:59&order=data_hora.desc`);
                 const items = await supabaseRequest('expedition_items');
                 
                 // Combinar expedições com seus itens e determinar ordem de entrega
@@ -879,19 +944,26 @@
                     }
                     
                     const lider = lideres.find(l => l.id === exp.lider_id);
+                    const doca = docas.find(d => d.id === exp.doca_id);
                     
                     return {
                         ...exp,
                         ...expeditionInfo,
                         items: expItems,
                         lider_nome: lider ? lider.nome : 'N/A',
+                        doca_nome: doca ? doca.nome : 'N/A',
                         total_pallets: expItems.reduce((sum, item) => sum + (item.pallets || 0), 0),
                         total_rolltrainers: expItems.reduce((sum, item) => sum + (item.rolltrainers || 0), 0)
                     };
                 });
 
-                updateStats();
-                renderExpeditions();
+                // Popular filtro de status na primeira execução
+                if (document.getElementById('filtroStatus').children.length <= 1) {
+                    populateStatusFilter();
+                }
+
+                // Aplicar filtros
+                applyFilters();
 
             } catch (error) {
                 console.error('Erro ao carregar expedições:', error);
@@ -899,12 +971,125 @@
             }
         }
 
+        // Popular filtro de status
+        function populateStatusFilter() {
+            const filtroStatus = document.getElementById('filtroStatus');
+            if (!filtroStatus) return;
+
+            const statuses = [...new Set(allExpeditions.map(e => e.status))];
+            
+            // Manter opção "Todos"
+            const currentValue = filtroStatus.value;
+            filtroStatus.innerHTML = '<option value="">Todos</option>';
+            
+            statuses.forEach(status => {
+                filtroStatus.innerHTML += `<option value="${status}">${getStatusLabel(status)}</option>`;
+            });
+            
+            // Restaurar valor selecionado se existir
+            if (currentValue) {
+                filtroStatus.value = currentValue;
+            }
+        }
+
+        // Aplicar filtros
+        function applyFilters() {
+            const filtroStatus = document.getElementById('filtroStatus')?.value || '';
+            const filtroBusca = document.getElementById('filtroBusca')?.value.toLowerCase() || '';
+            
+            filteredExpeditions = allExpeditions.filter(exp => {
+                // Filtro por status
+                if (filtroStatus && exp.status !== filtroStatus) {
+                    return false;
+                }
+                
+                // Filtro por busca
+                if (filtroBusca) {
+                    const searchableText = [
+                        exp.loja_nome,
+                        exp.lider_nome,
+                        exp.doca_nome,
+                        exp.observacoes || ''
+                    ].join(' ').toLowerCase();
+                    
+                    if (!searchableText.includes(filtroBusca)) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            });
+
+            highlightActiveFilters();
+            updateStats();
+            renderExpeditions();
+        }
+
+        // Limpar filtros
+        function clearFilters() {
+            // Definir data para hoje
+            const hoje = new Date().toISOString().split('T')[0];
+            document.getElementById('filtroData').value = hoje;
+            document.getElementById('filtroStatus').value = '';
+            document.getElementById('filtroBusca').value = '';
+            
+            // Recarregar dados e aplicar filtros
+            loadExpeditions();
+        }
+
+        // Atualizar expedições (recarregar do servidor)
+        function refreshExpeditions() {
+            const refreshBtn = document.querySelector('[onclick="refreshExpeditions()"]');
+            const refreshIcon = refreshBtn?.querySelector('i');
+            
+            if (refreshIcon) {
+                refreshIcon.classList.add('spinning');
+            }
+            
+            showNotification('Atualizando expedições...', 'info');
+            
+            loadExpeditions().finally(() => {
+                if (refreshIcon) {
+                    refreshIcon.classList.remove('spinning');
+                }
+            });
+        }
+
+        // Destacar filtros ativos
+        function highlightActiveFilters() {
+            const filtroStatus = document.getElementById('filtroStatus');
+            const filtroBusca = document.getElementById('filtroBusca');
+            const filtroData = document.getElementById('filtroData');
+            const hoje = new Date().toISOString().split('T')[0];
+            
+            // Destacar se há filtros ativos
+            if (filtroStatus?.value) {
+                filtroStatus.classList.add('filter-active');
+            } else {
+                filtroStatus?.classList.remove('filter-active');
+            }
+            
+            if (filtroBusca?.value) {
+                filtroBusca.classList.add('filter-active');
+            } else {
+                filtroBusca?.classList.remove('filter-active');
+            }
+            
+            if (filtroData?.value && filtroData.value !== hoje) {
+                filtroData.classList.add('filter-active');
+            } else {
+                filtroData?.classList.remove('filter-active');
+            }
+        }
+
         // Atualizar estatísticas
         function updateStats() {
-            const total = allExpeditions.length;
-            const pendentes = allExpeditions.filter(e => ['aguardando_agrupamento', 'aguardando_veiculo'].includes(e.status)).length;
-            const emAndamento = allExpeditions.filter(e => ['em_carregamento', 'carregado', 'saiu_para_entrega'].includes(e.status)).length;
-            const concluidas = allExpeditions.filter(e => e.status === 'entregue').length;
+            const expeditionsToCount = filteredExpeditions.length > 0 ? filteredExpeditions : allExpeditions;
+            
+            const total = expeditionsToCount.length;
+            const pendentes = expeditionsToCount.filter(e => ['aguardando_agrupamento', 'aguardando_veiculo'].includes(e.status)).length;
+            const emAndamento = expeditionsToCount.filter(e => ['em_carregamento', 'carregado', 'saiu_para_entrega'].includes(e.status)).length;
+            const concluidas = expeditionsToCount.filter(e => e.status === 'entregue').length;
 
             document.getElementById('totalExpedicoes').textContent = total;
             document.getElementById('pendentesCount').textContent = pendentes;
@@ -915,13 +1100,16 @@
         // Renderizar expedições
         function renderExpeditions() {
             const container = document.getElementById('expeditionsList');
+            const expeditionsToRender = filteredExpeditions.length > 0 || (document.getElementById('filtroStatus')?.value || document.getElementById('filtroBusca')?.value) ? filteredExpeditions : allExpeditions;
             
-            if (allExpeditions.length === 0) {
-                container.innerHTML = '<p class="text-center text-gray-500">Nenhuma expedição encontrada hoje</p>';
+            if (expeditionsToRender.length === 0) {
+                const hasFilters = document.getElementById('filtroStatus')?.value || document.getElementById('filtroBusca')?.value;
+                const message = hasFilters ? 'Nenhuma expedição encontrada para os filtros aplicados' : 'Nenhuma expedição encontrada para esta data';
+                container.innerHTML = `<p class="text-center text-gray-500">${message}</p>`;
                 return;
             }
 
-            container.innerHTML = allExpeditions.map(exp => {
+            container.innerHTML = expeditionsToRender.map(exp => {
                 // Informações da doca
                 const doca = docas.find(d => d.id === exp.doca_id);
                 const docaInfo = doca ? doca.nome : 'N/A';
@@ -1085,12 +1273,13 @@
             }, 3000);
         }
 
-        // Auto-refresh das expedições a cada 30 segundos quando na tela de acompanhamento
+        // Auto-refresh das expedições a cada 60 segundos quando na tela de acompanhamento
         setInterval(() => {
             if (document.getElementById('acompanhamento').classList.contains('active') && selectedFilial) {
+                // Recarregar dados silenciosamente
                 loadExpeditions();
             }
-        }, 30000);
+        }, 60000);
 
     </script>
 </body>
