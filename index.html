@@ -971,9 +971,9 @@
                             <span class="status-badge status-${exp.status}">${getStatusLabel(exp.status)}</span>
                         </div>
                         <div class="expedition-details">
+                            <strong>⚓ Doca:</strong> ${docaInfo}${ordemInfo}<br>
                             <strong>👤 Líder:</strong> ${exp.lider_nome}<br>
-                            <strong>⚓ Doca:</strong> ${docaInfo}<br>
-                            <strong>📦 Carga:</strong> ${exp.total_pallets}P + ${exp.total_rolltrainers}R${veiculoInfo}${ordemInfo}
+                            <strong>📦 Carga:</strong> ${exp.total_pallets}P + ${exp.total_rolltrainers}R${veiculoInfo}
                             ${exp.observacoes ? `<br><strong>💬 Obs:</strong> ${exp.observacoes}` : ''}
                         </div>
                     </div>
