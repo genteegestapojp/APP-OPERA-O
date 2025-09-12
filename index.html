@@ -904,6 +904,10 @@
             }
 
             container.innerHTML = allExpeditions.map(exp => {
+                // Informações da doca
+                const doca = docas.find(d => d.id === exp.doca_id);
+                const docaInfo = doca ? doca.nome : 'N/A';
+                
                 // Determinar informações do veículo/motorista se alocado
                 let veiculoInfo = '';
                 if (exp.veiculo_id && exp.motorista_id) {
@@ -968,6 +972,7 @@
                         </div>
                         <div class="expedition-details">
                             <strong>👤 Líder:</strong> ${exp.lider_nome}<br>
+                            <strong>⚓ Doca:</strong> ${docaInfo}<br>
                             <strong>📦 Carga:</strong> ${exp.total_pallets}P + ${exp.total_rolltrainers}R${veiculoInfo}${ordemInfo}
                             ${exp.observacoes ? `<br><strong>💬 Obs:</strong> ${exp.observacoes}` : ''}
                         </div>
