@@ -450,6 +450,16 @@
         .spinning {
             animation: spin 1s linear infinite;
         }
+        
+        .carga-badge {
+            background: #DBEAFE;
+            color: #1E40AF;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 0.65rem;
+            font-weight: bold;
+            margin-top: 4px;
+        }
 
         /* Responsividade adicional */
         @media (max-width: 320px) {
@@ -469,21 +479,17 @@
 </head>
 <body>
     
-    <!-- Tela de Seleção de Filial -->
     <div id="filialSelectionContainer" class="filial-selection-container">
         <div class="filial-selection">
             <h2>Selecione a Filial</h2>
             <p>Escolha sua filial para continuar</p>
             <div id="filiaisGrid">
-                <!-- Filiais serão carregadas aqui -->
-            </div>
+                </div>
         </div>
     </div>
 
-    <!-- App Principal -->
     <div id="mainApp" style="display: none;">
         
-        <!-- Header -->
         <header class="mobile-header">
             <h1>
                 <i data-feather="truck" class="w-5 h-5"></i>
@@ -492,10 +498,8 @@
             <div class="filial-info" id="headerFilial">Filial: Carregando...</div>
         </header>
 
-        <!-- Conteúdo Principal -->
         <div class="main-content">
             
-            <!-- Tela de Lançamento -->
             <div id="lancamento" class="view-content active">
                 <div class="card">
                     <h2 class="text-xl font-bold text-gray-800 mb-4 text-center">Lançar Expedição</h2>
@@ -522,6 +526,11 @@
                                 <option value="">Selecione o líder</option>
                             </select>
                         </div>
+                        
+                        <div class="form-group">
+                            <label for="numerosCargaInput">Números de Carga (separados por vírgula)</label>
+                            <input type="text" id="numerosCargaInput" placeholder="Ex: CG001, CG002, CG003">
+                        </div>
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                             <div class="form-group">
@@ -547,7 +556,6 @@
                 </div>
             </div>
 
-            <!-- Tela de Acompanhamento -->
             <div id="acompanhamento" class="view-content">
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -568,7 +576,6 @@
                     </div>
                 </div>
 
-                <!-- Filtros -->
                 <div class="card" style="padding: 16px;">
                     <h3 class="font-semibold text-gray-800 mb-3 flex items-center gap-2">
                         <i data-feather="filter" class="w-4 h-4"></i>
@@ -619,7 +626,6 @@
 
         </div>
 
-        <!-- Navegação Bottom -->
         <nav class="bottom-nav">
             <a href="#lancamento" class="nav-item active" onclick="showView('lancamento', this)">
                 <i data-feather="plus-circle" class="w-5 h-5"></i>
@@ -637,7 +643,6 @@
 
     </div>
 
-    <!-- Container de Notificações -->
     <div id="notificationContainer"></div>
 
     <script>
@@ -834,6 +839,7 @@
             const lojaId = document.getElementById('lojaSelect').value;
             const docaId = document.getElementById('docaSelect').value;
             const liderId = document.getElementById('liderSelect').value;
+            const numerosCargaInput = document.getElementById('numerosCargaInput').value.trim();
             const pallets = parseInt(document.getElementById('palletsInput').value) || 0;
             const rolltrainers = parseInt(document.getElementById('rolltrainersInput').value) || 0;
             const observacoes = document.getElementById('observacoes').value.trim();
@@ -850,13 +856,20 @@
             }
 
             try {
+                // Processar números de carga
+                let numerosCarga = [];
+                if (numerosCargaInput) {
+                    numerosCarga = numerosCargaInput.split(',').map(num => num.trim()).filter(num => num.length > 0);
+                }
+
                 // Criar expedição
                 const expeditionData = {
                     data_hora: new Date().toISOString(),
                     lider_id: liderId,
                     doca_id: docaId,
                     status: 'aguardando_agrupamento',
-                    observacoes: observacoes || null
+                    observacoes: observacoes || null,
+                    numeros_carga: numerosCarga.length > 0 ? numerosCarga : null
                 };
                 
                 const expeditionResponse = await supabaseRequest('expeditions', 'POST', expeditionData);
@@ -1009,7 +1022,8 @@
                         exp.loja_nome,
                         exp.lider_nome,
                         exp.doca_nome,
-                        exp.observacoes || ''
+                        exp.observacoes || '',
+                        exp.numeros_carga ? exp.numeros_carga.join(' ').toLowerCase() : ''
                     ].join(' ').toLowerCase();
                     
                     if (!searchableText.includes(filtroBusca)) {
@@ -1156,6 +1170,11 @@
                     tipoBadge = `<span class="type-badge">ROTA</span>`;
                 }
 
+                // Badge para números de carga
+                const numerosCargaBadge = exp.numeros_carga && exp.numeros_carga.length > 0
+                    ? `<div class="carga-badge">Cargas: ${exp.numeros_carga.join(', ')}</div>`
+                    : '';
+
                 // Indicador de urgência baseado no tempo
                 let urgencyBadge = '';
                 const horasDecorridas = (new Date() - new Date(exp.data_hora)) / (1000 * 60 * 60);
@@ -1181,6 +1200,7 @@
                             <strong>👤 Líder:</strong> ${exp.lider_nome}<br>
                             <strong>📦 Carga:</strong> ${exp.total_pallets}P + ${exp.total_rolltrainers}R${veiculoInfo}
                             ${exp.observacoes ? `<br><strong>💬 Obs:</strong> ${exp.observacoes}` : ''}
+                            ${numerosCargaBadge}
                         </div>
                     </div>
                 `;
